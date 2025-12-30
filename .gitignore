@@ -1,0 +1,52 @@
+############################
+# Backend (Spring Boot / Java)
+############################
+
+# Maven
+target/
+*.log
+
+# Gradle
+build/
+.gradle/
+
+# Java
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+############################
+# Frontend (Node-based)
+############################
+
+node_modules/
+dist/
+build/
+out/
+
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+############################
+# Environment files
+############################
+
+.env
+.env.*
+application-local.yml
+application-local.properties
+
+############################
+# OS junk
+############################
+
+.DS_Store
+Thumbs.db
