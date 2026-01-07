@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SmartHiringPipelineApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(SmartHiringPipelineApplication.class, args);
 	}
 
