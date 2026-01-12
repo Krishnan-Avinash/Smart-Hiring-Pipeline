@@ -1,4 +1,4 @@
-package com.smartHiringPipeline.demo.dto;
+package com.smartHiringPipeline.demo.dto.Login;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

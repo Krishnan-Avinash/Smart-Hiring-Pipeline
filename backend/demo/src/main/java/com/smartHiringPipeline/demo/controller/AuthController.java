@@ -1,7 +1,7 @@
 package com.smartHiringPipeline.demo.controller;
 
-import com.smartHiringPipeline.demo.dto.LoginRequest;
-import com.smartHiringPipeline.demo.dto.LoginResponse;
+import com.smartHiringPipeline.demo.dto.Login.LoginRequest;
+import com.smartHiringPipeline.demo.dto.Login.LoginResponse;
 import com.smartHiringPipeline.demo.entity.User;
 import com.smartHiringPipeline.demo.service.JwtService;
 import com.smartHiringPipeline.demo.service.UserService;
@@ -38,7 +38,7 @@ public class AuthController {
         }
         String token=jwtService.generateToken(user);
         return new ResponseEntity<>(
-                new LoginResponse(token,user.getUser_id(),user.getRole()),
+                new LoginResponse(token,user.getUserId(),user.getRole()),
                 HttpStatus.FOUND);
     }
 }
