@@ -15,10 +15,10 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
-    @Value("${jwt.expiration}")
+    @Value("${JWT_EXPIRATION}")
     private Long expiration;
 
     private Key getSigningKey() {
@@ -27,7 +27,7 @@ public class JwtService {
 
     public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(user.getUser_id().toString())
+                .setSubject(user.getUserId().toString())
                 .claim("role", user.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

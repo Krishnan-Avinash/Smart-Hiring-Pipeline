@@ -15,8 +15,8 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long user_id;
+    @Column(name = "userId")
+    private Long userId;
 
     @NonNull
     private String userName;
@@ -31,7 +31,11 @@ public class User {
     private String role;
 
     @Column
-    private boolean is_active=true;
+    private boolean isActive=true;
+
+    public boolean getIsActive() {
+        return isActive;
+    }
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

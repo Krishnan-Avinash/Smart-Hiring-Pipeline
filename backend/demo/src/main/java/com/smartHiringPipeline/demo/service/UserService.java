@@ -17,6 +17,9 @@ public class UserService {
 
     private static final PasswordEncoder passwordEncoder=new BCryptPasswordEncoder();
 
+    public String encodePassword(String password){
+        return passwordEncoder.encode(password);
+    }
 
     public User findByEmail(String email){
         return userRepository.findByEmail(email);
@@ -27,5 +30,16 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void saveUser(User user){
+        userRepository.save(user);
+    }
+
+    public User findByUserId(Long user_id){
+        return userRepository.findByUserId(user_id);
+    }
+
+    public boolean matches(String raw,String encoded){
+        return passwordEncoder.matches(raw,encoded);
+    }
 
 }
