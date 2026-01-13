@@ -3,36 +3,46 @@ package com.smartHiringPipeline.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "jobs")
 @Data
 @NoArgsConstructor
-public class Company {
+public class Job {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="companyId")
-    private Long companyId;
-
-    @Column(nullable = false)
-    private String name;
-
-    private String description;
-
-    private String websiteUrl;
-
-    private String industry;
+    private Long jobId;
 
     @ManyToOne
-    @JoinColumn(name = "userName",nullable = false)
+    @JoinColumn(name = "companyId", nullable = false)
+    private Company company;
+
+    @ManyToOne
+    @JoinColumn(name = "createdBy", nullable = false)
     private User createdBy;
 
-    @Column
-    private boolean isActive=true;
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String location;
+
+    private String employmentType;
+
+    private Integer experienceMin;
+    private Integer experienceMax;
+
+    @Column(columnDefinition = "TEXT")
+    private String requiredSkills;
+
+    @Column(columnDefinition = "TEXT")
+    private String prioritySkills;
+
+    private String status;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
