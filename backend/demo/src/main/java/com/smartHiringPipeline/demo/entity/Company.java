@@ -28,7 +28,7 @@ public class Company {
     private String industry;
 
     @ManyToOne
-    @JoinColumn(name = "userName",nullable = false)
+    @JoinColumn(name = "createdBy",nullable = false)
     private User createdBy;
 
     @Column
