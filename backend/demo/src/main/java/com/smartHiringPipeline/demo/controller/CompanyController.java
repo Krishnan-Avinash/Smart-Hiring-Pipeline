@@ -21,12 +21,10 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final UserService userService;
     private final JobService jobService;
 
-    public CompanyController(CompanyService companyService, UserService userService, JobService jobService) {
+    public CompanyController(CompanyService companyService, JobService jobService) {
         this.companyService = companyService;
-        this.userService = userService;
         this.jobService = jobService;
     }
 
@@ -59,5 +57,4 @@ public class CompanyController {
         List<JobResponse> jobs=jobService.findByCompanyId(id).stream().map(JobResponse::from).toList();
         return ResponseEntity.ok(jobs);
     }
-
 }
