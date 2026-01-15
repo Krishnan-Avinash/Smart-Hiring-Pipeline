@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("jobs")
-@PreAuthorize("hasRole('RECRUITER')")
 public class JobController {
 
     private final RecruiterService recruiterService;
@@ -64,7 +63,6 @@ public class JobController {
     @DeleteMapping("deleteJobById/{jobId}")
     public ResponseEntity<?> deleteJobById(@PathVariable Long jobId,Authentication authentication){
         User user=(User) authentication.getPrincipal();
-        Job job=jobService.findByJobId(jobId,user.getUserName());
         jobService.deleteById(jobId,user.getUserName());
         return new ResponseEntity<>(HttpStatus.OK);
     }

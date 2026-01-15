@@ -41,6 +41,9 @@ public class JobService {
     public Job findByJobId(Long jobId,String createdBy){
         return jobRepository.findByJobIdAndCreatedBy_UserName(jobId,createdBy);
     }
+    public Job findByJobId(Long jobId){
+        return jobRepository.findByJobId(jobId);
+    }
 
     public void deleteById(Long jobId,String createdBy){
         Job job=findByJobId(jobId,createdBy);

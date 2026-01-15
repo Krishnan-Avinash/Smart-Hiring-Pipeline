@@ -8,6 +8,7 @@ import java.util.List;
 public interface JobRepository extends JpaRepository<Job,Long> {
     List<Job> findByCompany_CompanyId(Long companyId);
     Job findByJobIdAndCreatedBy_UserName(Long jobId,String userName);
+    Job findByJobId(Long jobId);
 }
 
 
