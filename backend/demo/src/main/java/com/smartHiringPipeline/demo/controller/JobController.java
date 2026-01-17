@@ -31,23 +31,42 @@ public class JobController {
     public ResponseEntity<?> createNewJob(@RequestBody JobCreationUpdationRequest body, Authentication authentication){
         User user=(User) authentication.getPrincipal();
         Recruiter rec=recruiterService.findByUserIdCompleteData(user.getUserId());
+        if(rec==null || rec.getCompany()==null){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Recruiter must be associated with a company to create a job");
+        }
         Company com=rec.getCompany();
         jobService.saveNewService(body,user,com);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Job created successfully");
     }
 
+    @PreAuthorize("hasAnyRole('RECRUITER','CANDIDATE')")
     @GetMapping("getJobById/{jobId}")
     public ResponseEntity<?> getJobById(@PathVariable Long jobId,Authentication authentication){
         User user=(User) authentication.getPrincipal();
         Job job=jobService.findByJobId(jobId, user.getUserName());
-        return new ResponseEntity<>(job,HttpStatus.FOUND);
+        if (job == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Job not found");
+        }
+        return ResponseEntity.ok(job);
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("updateJobById/{jobId}")
     @Transactional
     public ResponseEntity<?> updateJobById(@PathVariable Long jobId, @RequestBody JobCreationUpdationRequest body,Authentication authentication){
         User user=(User) authentication.getPrincipal();
         Job job=jobService.findByJobId(jobId,user.getUserName());
+        if (job == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Job not found or you are not authorized to update it");
+        }
         job.setTitle(body.getTitle());
         job.setDescription(body.getDescription());
         job.setLocation(body.getLocation());
@@ -57,13 +76,23 @@ public class JobController {
         job.setRequiredSkills(body.getRequiredSkills());
         job.setPrioritySkills(body.getPrioritySkills());
         job.setStatus(body.getStatus());
-        return new ResponseEntity<>(HttpStatus.OK);
+        jobService.saveJob(job);
+        return ResponseEntity
+                .ok("Job updated successfully");
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @DeleteMapping("deleteJobById/{jobId}")
     public ResponseEntity<?> deleteJobById(@PathVariable Long jobId,Authentication authentication){
         User user=(User) authentication.getPrincipal();
-        jobService.deleteById(jobId,user.getUserName());
-        return new ResponseEntity<>(HttpStatus.OK);
+        boolean deleted = jobService.deleteById(jobId, user.getUserName());
+
+        if (!deleted) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Job not found or you are not authorized to delete it");
+        }
+        return ResponseEntity
+                .ok("Job deleted successfully");
     }
 }

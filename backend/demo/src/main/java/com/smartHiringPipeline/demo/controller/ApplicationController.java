@@ -2,13 +2,8 @@ package com.smartHiringPipeline.demo.controller;
 
 import com.smartHiringPipeline.demo.dto.application.ApplicationResponse;
 import com.smartHiringPipeline.demo.dto.application.StatusUpdationRequest;
-import com.smartHiringPipeline.demo.entity.Application;
-import com.smartHiringPipeline.demo.entity.Candidate;
-import com.smartHiringPipeline.demo.entity.Job;
-import com.smartHiringPipeline.demo.entity.User;
-import com.smartHiringPipeline.demo.service.ApplicationService;
-import com.smartHiringPipeline.demo.service.CandidateService;
-import com.smartHiringPipeline.demo.service.JobService;
+import com.smartHiringPipeline.demo.entity.*;
+import com.smartHiringPipeline.demo.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,62 +14,147 @@ import java.util.List;
 
 @RestController
 @RequestMapping("application")
-@PreAuthorize("hasRole('CANDIDATE')")
+
 public class ApplicationController {
 
     private final JobService jobService;
     private final ApplicationService applicationService;
     private final CandidateService candidateService;
+    private final ResumeScoreService resumeScoreService;
+    private final RecruiterService recruiterService;
 
-    public ApplicationController(JobService jobService,ApplicationService applicationService, CandidateService candidateService) {
+    public ApplicationController(JobService jobService, ApplicationService applicationService, CandidateService candidateService, ResumeScoreService resumeScoreService, RecruiterService recruiterService) {
         this.jobService = jobService;
         this.applicationService = applicationService;
         this.candidateService = candidateService;
+        this.resumeScoreService = resumeScoreService;
+        this.recruiterService = recruiterService;
     }
-
+    @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("createApplication/{id}")
     public ResponseEntity<?> createApplication(Authentication authentication,@PathVariable Long id){
         User user=(User)authentication.getPrincipal();
         Job job=jobService.findByJobId(id);
+        if(job == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Job not found");
+        }
         Candidate candidate=candidateService.findByUserId(user.getUserId());
+        if (candidate == null) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Candidate profile not found");
+        }
         applicationService.saveNewApplication(job,candidate);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Application created successfully");
     }
 
     @GetMapping("getApplication/{applicationId}")
     @PreAuthorize("hasRole('CANDIDATE')")
-    public ApplicationResponse getApplication(@PathVariable Long applicationId, Authentication authentication){
-        User user=(User)authentication.getPrincipal();
-        Application app= applicationService.findByApplicationId(applicationId);
-        System.out.println(app);
-        ApplicationResponse res=new ApplicationResponse();
+    public ResponseEntity<?> getApplication(@PathVariable Long applicationId,Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        Application app =applicationService.findByApplicationId(applicationId);
+
+        if (app == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Application not found");
+        }
+        if (!app.getCandidate().getUser().getUserId().equals(user.getUserId())) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("You are not allowed to view this application");
+        }
+
+        ApplicationResponse res = new ApplicationResponse();
+        ResumeScore temp=resumeScoreService.findByApplicationId(app.getApplicationId()).orElse(null);
         res.setApplicationId(app.getApplicationId());
         res.setStatus(app.getStatus());
         res.setName(app.getCandidate().getUser().getUserName());
         res.setEmail(app.getCandidate().getUser().getEmail());
         res.setResumeUrl(app.getCandidate().getResumeUrl());
-        return res;
+        if(temp!=null){
+            res.setFinalScore(temp.getFinalScore());
+            res.setAiScore(temp.getAiScore());
+            res.setKeywordScore(temp.getKeywordScore());
+        }
+
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping("getApplicationsForAJob/{jobId}")
-    public List<ApplicationResponse> getApplicationsForAJob(@PathVariable Long jobId){
-        return applicationService.findByJobId(jobId)
-                .stream()
-                .map(app -> new ApplicationResponse(
-                        app.getApplicationId(),
-                        app.getStatus(),
-                        app.getCandidate().getUser().getUserName(),
-                        app.getCandidate().getUser().getEmail(),
-                        app.getCandidate().getResumeUrl()
-                ))
-                .toList();
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> getApplicationsForAJob(@PathVariable Long jobId,Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        Recruiter recruiter = recruiterService.findByUserIdCompleteData(user.getUserId());
+        Job job = jobService.findByJobId(jobId);
+        if (job == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Job not found");
+        }
+        if (!job.getCompany().getCompanyId()
+                .equals(recruiter.getCompany().getCompanyId())) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("You are not allowed to view applications for this job");
+        }
+        List<ApplicationResponse> response =
+                applicationService.findByJobId(jobId)
+                        .stream()
+                        .map(application -> {
+
+                            ResumeScore score =
+                                    resumeScoreService.findByApplicationId(
+                                            application.getApplicationId()
+                                    ).orElse(null);
+
+                            ApplicationResponse ret = new ApplicationResponse();
+
+                            ret.setApplicationId(application.getApplicationId());
+                            ret.setStatus(application.getStatus());
+                            ret.setName(application.getCandidate().getUser().getUserName());
+                            ret.setEmail(application.getCandidate().getUser().getEmail());
+                            ret.setResumeUrl(application.getCandidate().getResumeUrl());
+
+                            if (score != null) {
+                                ret.setAiScore(score.getAiScore());
+                                ret.setKeywordScore(score.getKeywordScore());
+                                ret.setFinalScore(score.getFinalScore());
+                            }
+
+                            return ret;
+                        })
+                        .toList();
+
+        return ResponseEntity.ok(response);
     }
+
 
     @PatchMapping("updateStatus/{applicationId}")
-    public void updateStatus(@PathVariable Long applicationId, @RequestBody StatusUpdationRequest body){
-        Application app=applicationService.findByApplicationId(applicationId);
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> updateStatus(@PathVariable Long applicationId, @RequestBody StatusUpdationRequest body, Authentication authentication){
+
+        Application app = applicationService.findByApplicationId(applicationId);
+        if (app == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Application not found");
+        }
+        User user = (User) authentication.getPrincipal();
+        Recruiter recruiter =recruiterService.findByUserIdCompleteData(user.getUserId());
+        if (!app.getJob().getCompany().getCompanyId()
+                .equals(recruiter.getCompany().getCompanyId())) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("You are not allowed to update this application");
+        }
         app.setStatus(body.getStatus());
         applicationService.saveApplication(app);
+        return ResponseEntity
+                .ok("Application status updated successfully");
     }
-
 }

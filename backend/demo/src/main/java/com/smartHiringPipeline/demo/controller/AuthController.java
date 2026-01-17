@@ -31,14 +31,12 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request){
         User user=userService.findByEmail(request.getEmail());
         if(user==null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
         if(passwordEncoder.matches(request.getPassword(), user.getPassword())==false){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         }
         String token=jwtService.generateToken(user);
-        return new ResponseEntity<>(
-                new LoginResponse(token,user.getUserId(),user.getRole()),
-                HttpStatus.FOUND);
+        return ResponseEntity.ok(new LoginResponse(token, user.getUserId(), user.getRole()));
     }
 }

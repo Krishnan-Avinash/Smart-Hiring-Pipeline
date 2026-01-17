@@ -11,11 +11,17 @@ public class ApplicationResponse {
     private String name;
     private String email;
     private String resumeUrl;
-    public ApplicationResponse(Long applicationId,String status,String name,String email,String resumeUrl){
+    private Integer finalScore;
+    private Integer aiScore;
+    private Integer keywordScore;
+    public ApplicationResponse(Long applicationId,String status,String name,String email,String resumeUrl,Integer finalScore,Integer aiScore,Integer keywordScore){
         this.applicationId=applicationId;
         this.status=status;
         this.name=name;
         this.email=email;
         this.resumeUrl=resumeUrl;
+        this.keywordScore=keywordScore;
+        this.aiScore=aiScore;
+        this.finalScore=finalScore;
     }
 }

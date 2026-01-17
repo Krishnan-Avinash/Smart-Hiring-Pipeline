@@ -38,6 +38,10 @@ public class JobService {
         jobRepository.save(job);
     }
 
+    public void saveJob(Job job){
+        jobRepository.save(job);
+    }
+
     public Job findByJobId(Long jobId,String createdBy){
         return jobRepository.findByJobIdAndCreatedBy_UserName(jobId,createdBy);
     }
@@ -45,8 +49,9 @@ public class JobService {
         return jobRepository.findByJobId(jobId);
     }
 
-    public void deleteById(Long jobId,String createdBy){
+    public boolean deleteById(Long jobId,String createdBy){
         Job job=findByJobId(jobId,createdBy);
         jobRepository.delete(job);
+        return findByJobId(jobId) == null;
     }
 }

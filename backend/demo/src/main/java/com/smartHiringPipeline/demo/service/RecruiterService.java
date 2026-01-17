@@ -35,10 +35,14 @@ public class RecruiterService {
     public RecruiterResponse findByUserId(Long userId){
         RecruiterResponse t=new RecruiterResponse();
         Recruiter rec=recruiterRepository.findByUser_UserId(userId);
+        if(rec==null){
+            return null;
+        }
         t.setDesignation(rec.getDesignation());
         t.setEmail(rec.getEmail());
         t.setUserId(rec.getUser().getUserId());
         t.setRecruiterId(rec.getRecruiterId());
+        t.setCompanyId(rec.getCompany().getCompanyId());
         return t;
     }
 

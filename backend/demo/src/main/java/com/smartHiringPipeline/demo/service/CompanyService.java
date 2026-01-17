@@ -41,4 +41,8 @@ public class CompanyService {
     public Company findByCompanyId(Long companyId){
         return companyRepository.findByCompanyId(companyId);
     }
+
+    public Company findByUserId(Long userId){
+        return companyRepository.findByCreatedBy_UserId(userId);
+    }
 }
