@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("candidate")
-@PreAuthorize("hasRole('CANDIDATE')")
 public class CandidateController {
 
     private final CandidateService candidateService;
@@ -26,30 +25,41 @@ public class CandidateController {
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<?> createCandidate(@RequestBody CandidateCreationUpdationRequest body, Authentication authentication){
         User user=(User) authentication.getPrincipal();
+        if (candidateService.findByUserId(user.getUserId())!=null) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Candidate profile already exists");
+        }
 //        System.out.println("WOHOOOOOOOOOOOOOOOOOOOOOOOOOOO:"+user);
         candidateService.saveCandidate(user,body);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Candidate profile created successfully");
     }
 
     @GetMapping("getSelf")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<?> getUserById(Authentication authentication){
         User user=(User) authentication.getPrincipal();
 //        System.out.println("USER ID"+user.getUserId());
         Candidate temp=candidateService.findByUserId(user.getUserId());
 //        System.out.println("temp:::"+temp);
-        if(temp==null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (temp == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Candidate profile not found");
         }
-        return new ResponseEntity<>(temp,HttpStatus.FOUND);
+        return ResponseEntity.ok(temp);
     }
 
     @PutMapping("updateDetails")
+    @PreAuthorize("hasRole('CANDIDATE')")
     @Transactional
     public ResponseEntity<?> updateDetails(@RequestBody CandidateCreationUpdationRequest body,Authentication authentication){
         User user=(User) authentication.getPrincipal();
         Candidate temp=candidateService.findByUserId(user.getUserId());
         if(temp==null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Candidate profile not found");
         }
         if(!temp.getResumeUrl().equals(body.getResumeUrl())){
             temp.setResumeUrl(body.getResumeUrl());
@@ -64,6 +74,6 @@ public class CandidateController {
             temp.setProfileSummary(body.getProfileSummary());
         }
         candidateService.saveCandidate(temp);
-        return new ResponseEntity<>(temp,HttpStatus.OK);
+        return ResponseEntity.ok(temp);
     }
 }

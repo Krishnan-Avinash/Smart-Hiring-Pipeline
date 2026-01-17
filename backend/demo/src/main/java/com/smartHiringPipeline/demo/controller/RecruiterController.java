@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("recruiter")
-@PreAuthorize("hasRole('RECRUITER')")
 public class RecruiterController {
 
     private final RecruiterService recruiterService;
@@ -23,24 +22,56 @@ public class RecruiterController {
     }
 
     @PostMapping("createNewRecruiter")
-    public void createNewRecruiter(@RequestBody RecruiterCreationUpdationRequest body, Authentication authentication){
+    @PreAuthorize("hasRole('RECRUITER')")
+    public ResponseEntity<?> createNewRecruiter(@RequestBody RecruiterCreationUpdationRequest body, Authentication authentication){
         User user=(User) authentication.getPrincipal();
+        System.out.println("----------------------------------------------------------------");
+        System.out.println(authentication.getPrincipal().getClass());
+        System.out.println(authentication.getAuthorities());
+
+        System.out.println("----------------------------------------------------------------");
+
+        if (recruiterService.findByUserId(user.getUserId())!=null) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Recruiter profile already exists");
+        }
         recruiterService.saveNewRecruiter(body,user);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Recruiter profile created successfully");
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @GetMapping("getSelf")
-    public RecruiterResponse getSelf(Authentication authentication){
+    public ResponseEntity<?> getSelf(Authentication authentication){
         User user=(User)authentication.getPrincipal();
-        return recruiterService.findByUserId(user.getUserId());
+        RecruiterResponse response =
+                recruiterService.findByUserId(user.getUserId());
+
+        if (response == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Recruiter profile not found");
+        }
+
+        return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("updateSelf")
     public ResponseEntity<?> updateSelf(@RequestBody RecruiterCreationUpdationRequest body,Authentication authentication){
         User user=(User) authentication.getPrincipal();
         Recruiter temp=recruiterService.findByUserIdCompleteData(user.getUserId());
+        if (temp == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Recruiter profile not found");
+        }
         temp.setEmail(body.getEmail());
         temp.setDesignation(body.getDesignation());
         recruiterService.saveRecruiter(temp);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity
+                .ok("Recruiter profile updated successfully");
     }
 }
