@@ -253,3 +253,342 @@ Smart-Hiring-Pipeline
 #### Response:
 `200 OK`
 
+
+## Company APIs
+### Create Company
+`POST /company/createCompany`
+
+>Bearer Token Required
+
+#### Request Body:
+```
+{
+  "name": "COMPANY 2",
+  "description": "abc",
+  "websiteUrl": "abab",
+  "industry": "abc"
+}
+
+```
+#### Response:
+`200 ok`
+
+### Get Company By Id
+GET /company/getCompanyById/{id}
+
+Bearer Token Required
+
+#### Response:
+{
+  "companyId": 1,
+  "name": "",
+  "description": "",
+  "websiteUrl": "",
+  "industry": "",
+  "createdBy": {
+    "userId": 3,
+    "userName": "",
+    "email": "@.com",
+    "password": "",
+    "role": "RECRUITER",
+    "isActive": true,
+    "createdAt": "2026-01-13T12:12:59.147194",
+    "updatedAt": "2026-01-13T12:12:59.147194"
+  },
+  "createdAt": "2026-01-13T23:00:11.740013",
+  "updatedAt": "2026-01-13T23:34:50.205705",
+  "active": true
+}
+
+
+### Update Company
+PUT /company/updateCompany/{id}
+
+>Bearer Token Required
+
+#### Request Body:
+{
+  "name": "",
+  "description": "",
+  "websiteUrl": "",
+  "industry": ""
+}
+
+#### Response:
+200 OK
+
+### Get Jobs Of Company
+Get Jobs Of Company
+
+>Bearer Token Required
+
+#### Response:
+Array of jobId, title, location and status
+
+## Job APIs
+
+### Create New Job
+
+POST /jobs/createNewJob
+
+>Bearer Token Required
+
+#### Request Body:
+{
+  "title": "",
+  "description": "",
+  "location": "",
+  "employmentType": "",
+  "experienceMin": 0,
+  "experienceMax": 0,
+  "requiredSkills": "",
+  "prioritySkills": "",
+  "status": ""
+}
+
+#### Response:
+
+Job created successfully
+
+OR
+
+Recruiter must be associated with a company to create a job
+
+
+### Get Job By Id
+
+GET /jobs/getJobById/{jobId}
+
+>Bearer Token Required
+
+#### Response:
+{
+  "jobId": ,
+  "company": {
+    "companyId": ,
+    "name": "",
+    "description": "",
+    "websiteUrl": "",
+    "industry": "",
+    "createdBy": {
+      "userId": ,
+      "userName": "",
+      "email": "",
+      "password": "",
+      "role": "RECRUITER",
+      "isActive": true,
+      "createdAt": "",
+      "updatedAt": ""
+    },
+    "createdAt": "",
+    "updatedAt": "",
+    "active": true
+  },
+  "createdBy": {
+    "userId": ,
+    "userName": "",
+    "email": "",
+    "password": "",
+    "role": "RECRUITER",
+    "isActive": true,
+    "createdAt": "",
+    "updatedAt": ""
+  },
+  "title": "",
+  "description": "",
+  "location": "",
+  "employmentType": "",
+  "experienceMin": ,
+  "experienceMax": ,
+  "requiredSkills": "",
+  "prioritySkills": "",
+  "status": "",
+  "createdAt": "",
+  "updatedAt": ""
+}
+
+
+OR
+
+Job not found
+
+### Update Job By Id
+
+PUT /jobs/updateJobById/{jobId}
+
+>Bearer Token Required
+
+#### Request Body:
+{
+  "title": "",
+  "description": "",
+  "location": "",
+  "employmentType": "",
+  "experienceMin": ,
+  "experienceMax": ,
+  "requiredSkills": "",
+  "prioritySkills": "",
+  "status": ""
+}
+
+#### Response:
+
+Job updated successfully
+
+OR
+Job not found
+OR
+You are not authorized to update it
+
+#### Delete Job By Id
+
+DELETE /jobs/deleteJobById/{jobId}
+
+>Bearer Token Required
+
+#### Response:
+
+Job deleted successfully
+
+OR
+Job not found or you are not authorized to delete it
+
+## Application APIs
+### Create New Application
+
+POST /application/createApplication/{jobId}
+
+>Bearer Token Required
+
+#### Response:
+
+Job not found
+OR
+Candidate profile not found
+OR
+Application created successfully
+
+### Get Application
+
+GET /application/getApplication/{applicationId}
+
+>Bearer Token Required
+
+#### Response:
+{
+  "applicationId": ,
+  "status": "",
+  "name": "",
+  "email": "@gmail.com",
+  "resumeUrl": "",
+  "finalScore": ,
+  "aiScore": ,
+  "keywordScore": 
+}
+
+
+OR
+Application not found
+OR
+You are not allowed to view this application
+
+
+### Get Applications For A Job
+
+GET /application/getApplicationsForAJob/{jobId}
+
+>Bearer Token Required
+
+#### Response:
+[
+  {
+    "applicationId": ,
+    "status": "",
+    "name": "",
+    "email": "@gmail.com",
+    "resumeUrl": "",
+    "finalScore": ,
+    "aiScore": ,
+    "keywordScore": 
+  }
+]
+
+
+OR
+Job not found
+OR
+You are not allowed to view applications for this job
+
+### Update Application Status
+
+PATCH /application/updateStatus/{applicationId}
+
+>Bearer Token Required
+
+#### Request Body:
+{
+  "status": ""
+}
+
+#### Response:
+
+Application not found
+OR
+You are not allowed to update this application
+OR
+Application status updated successfully
+
+## Resume Score APIs
+### Create Resume Score
+
+POST /resumeScore/createNew/{applicationId}
+
+>Bearer Token Required
+
+#### Response:
+
+Recruiter is not associated with a company
+OR
+Application not found
+OR
+You are not allowed to score this application
+OR
+Resume scored successfully
+OR
+Failed to read resume file
+
+### Get Resume Score
+
+GET /resumeScore/getScore/{applicationId}
+
+>Bearer Token Required
+
+#### Response:
+{
+  "keywordScore": ,
+  "aiScore": ,
+  "finalScore": ,
+  "scoredAt": ""
+}
+
+
+OR
+Application not found
+OR
+You are not allowed to view this resume score
+OR
+Resume score not found
+
+## Health API
+### Server Health Check
+
+GET /health
+
+>No Authentication Required
+
+#### Response:
+```
+{
+  "status": "UP"
+}
+```
