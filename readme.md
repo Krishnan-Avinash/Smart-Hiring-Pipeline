@@ -274,11 +274,12 @@ Smart-Hiring-Pipeline
 `200 ok`
 
 ### Get Company By Id
-GET /company/getCompanyById/{id}
+`GET /company/getCompanyById/{id}`
 
 Bearer Token Required
 
 #### Response:
+```
 {
   "companyId": 1,
   "name": "",
@@ -299,41 +300,43 @@ Bearer Token Required
   "updatedAt": "2026-01-13T23:34:50.205705",
   "active": true
 }
-
+```
 
 ### Update Company
-PUT /company/updateCompany/{id}
+`PUT /company/updateCompany/{id}`
 
 >Bearer Token Required
 
 #### Request Body:
+```
 {
   "name": "",
   "description": "",
   "websiteUrl": "",
   "industry": ""
 }
-
+```
 #### Response:
-200 OK
+`200 OK`
 
 ### Get Jobs Of Company
-Get Jobs Of Company
+`GET /company/getJobsOfCompany/{id}/jobs`
 
 >Bearer Token Required
 
 #### Response:
-Array of jobId, title, location and status
+`Array of jobId`, `title`, `location` and `status`
 
 ## Job APIs
 
 ### Create New Job
 
-POST /jobs/createNewJob
+`POST /jobs/createNewJob`
 
 >Bearer Token Required
 
 #### Request Body:
+```
 {
   "title": "",
   "description": "",
@@ -345,23 +348,21 @@ POST /jobs/createNewJob
   "prioritySkills": "",
   "status": ""
 }
-
+```
 #### Response:
 
-Job created successfully
-
-OR
-
-Recruiter must be associated with a company to create a job
+- `Job created successfully`
+- `Recruiter must be associated with a company to create a job`
 
 
 ### Get Job By Id
 
-GET /jobs/getJobById/{jobId}
+`GET /jobs/getJobById/{jobId}`
 
 >Bearer Token Required
 
 #### Response:
+```
 {
   "jobId": ,
   "company": {
@@ -406,19 +407,19 @@ GET /jobs/getJobById/{jobId}
   "createdAt": "",
   "updatedAt": ""
 }
-
-
+```
 OR
 
-Job not found
+- `Job not found`
 
 ### Update Job By Id
 
-PUT /jobs/updateJobById/{jobId}
+`PUT /jobs/updateJobById/{jobId}`
 
 >Bearer Token Required
 
 #### Request Body:
+```
 {
   "title": "",
   "description": "",
@@ -430,51 +431,45 @@ PUT /jobs/updateJobById/{jobId}
   "prioritySkills": "",
   "status": ""
 }
-
+```
 #### Response:
 
-Job updated successfully
-
-OR
-Job not found
-OR
-You are not authorized to update it
+- `Job updated successfully`
+- `Job not found`
+- `You are not authorized to update it`
 
 #### Delete Job By Id
 
-DELETE /jobs/deleteJobById/{jobId}
+`DELETE /jobs/deleteJobById/{jobId}`
 
 >Bearer Token Required
 
 #### Response:
 
-Job deleted successfully
-
-OR
-Job not found or you are not authorized to delete it
+- `Job deleted successfully`
+- `Job not found or you are not authorized to delete it`
 
 ## Application APIs
 ### Create New Application
 
-POST /application/createApplication/{jobId}
+`POST /application/createApplication/{jobId}`
 
 >Bearer Token Required
 
 #### Response:
 
-Job not found
-OR
-Candidate profile not found
-OR
-Application created successfully
+- `Job not found`
+- `Candidate profile not found`
+- `Application created successfully`
 
 ### Get Application
 
-GET /application/getApplication/{applicationId}
+`GET /application/getApplication/{applicationId}`
 
 >Bearer Token Required
 
 #### Response:
+```
 {
   "applicationId": ,
   "status": "",
@@ -485,21 +480,21 @@ GET /application/getApplication/{applicationId}
   "aiScore": ,
   "keywordScore": 
 }
+```
 
-
-OR
-Application not found
-OR
-You are not allowed to view this application
+#### Error Responses:
+- `Application not found`
+- `You are not allowed to view this application`
 
 
 ### Get Applications For A Job
 
-GET /application/getApplicationsForAJob/{jobId}
+`GET /application/getApplicationsForAJob/{jobId}`
 
 >Bearer Token Required
 
 #### Response:
+```
 [
   {
     "applicationId": ,
@@ -512,77 +507,67 @@ GET /application/getApplicationsForAJob/{jobId}
     "keywordScore": 
   }
 ]
-
-
-OR
-Job not found
-OR
-You are not allowed to view applications for this job
+```
+#### Error Responses:
+- `Job not found`
+- `You are not allowed to view applications for this job`
 
 ### Update Application Status
 
-PATCH /application/updateStatus/{applicationId}
+`PATCH /application/updateStatus/{applicationId}`
 
 >Bearer Token Required
 
 #### Request Body:
+```
 {
   "status": ""
 }
-
+```
 #### Response:
 
-Application not found
-OR
-You are not allowed to update this application
-OR
-Application status updated successfully
+- `Application not found`
+- `You are not allowed to update this application`
+- `Application status updated successfully`
 
 ## Resume Score APIs
 ### Create Resume Score
 
-POST /resumeScore/createNew/{applicationId}
+`POST /resumeScore/createNew/{applicationId}`
 
 >Bearer Token Required
 
 #### Response:
 
-Recruiter is not associated with a company
-OR
-Application not found
-OR
-You are not allowed to score this application
-OR
-Resume scored successfully
-OR
-Failed to read resume file
+- `Recruiter is not associated with a company`
+- `Application not found`
+- `You are not allowed to score this application`
+- `Resume scored successfully`
+- `Failed to read resume file`
 
 ### Get Resume Score
 
-GET /resumeScore/getScore/{applicationId}
+`GET /resumeScore/getScore/{applicationId}`
 
 >Bearer Token Required
 
 #### Response:
-{
+```{
   "keywordScore": ,
   "aiScore": ,
   "finalScore": ,
   "scoredAt": ""
 }
-
-
-OR
-Application not found
-OR
-You are not allowed to view this resume score
-OR
-Resume score not found
+```
+#### Error Responses:
+- `Application not found`
+- `You are not allowed to view this resume score`
+- `Resume score not found`
 
 ## Health API
 ### Server Health Check
 
-GET /health
+`GET /health`
 
 >No Authentication Required
 
