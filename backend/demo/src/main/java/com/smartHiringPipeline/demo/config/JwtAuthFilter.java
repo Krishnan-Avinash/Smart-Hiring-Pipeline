@@ -36,17 +36,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("-------------------------------------------------------");
-        System.out.println("JWT FILTER HIT");
-        System.out.println("-------------------------------------------------------");
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String token=null;
+        if(request.getCookies() != null) {
+            for(var cookie : request.getCookies()){
+                if("token".equals(cookie.getName())){
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        if(token==null){
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = authHeader.substring(7);
         Long userId = jwtService.extractUserId(token);
 
         User user = userRepository.findById(userId)
