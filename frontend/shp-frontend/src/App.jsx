@@ -1,15 +1,17 @@
-import React from "react";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
+import { Routes, Route } from "react-router-dom";
+import Login from "./Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Temp from "./Temp";
 
-const App = () => {
+function App() {
   return (
-    <div>
-      <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-        Here is a gentle confirmation that your action was successful.
-      </Alert>
-    </div>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/temp" element={<Temp />} />
+      </Route>
+    </Routes>
   );
-};
+}
 
 export default App;
