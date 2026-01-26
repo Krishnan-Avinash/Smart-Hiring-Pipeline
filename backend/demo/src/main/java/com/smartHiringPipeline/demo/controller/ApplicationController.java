@@ -1,6 +1,7 @@
 package com.smartHiringPipeline.demo.controller;
 
 import com.smartHiringPipeline.demo.dto.application.ApplicationResponse;
+import com.smartHiringPipeline.demo.dto.application.ApplicationResponseForCandidate;
 import com.smartHiringPipeline.demo.dto.application.StatusUpdationRequest;
 import com.smartHiringPipeline.demo.entity.*;
 import com.smartHiringPipeline.demo.service.*;
@@ -22,13 +23,15 @@ public class ApplicationController {
     private final CandidateService candidateService;
     private final ResumeScoreService resumeScoreService;
     private final RecruiterService recruiterService;
+    private final UserService userService;
 
-    public ApplicationController(JobService jobService, ApplicationService applicationService, CandidateService candidateService, ResumeScoreService resumeScoreService, RecruiterService recruiterService) {
+    public ApplicationController(JobService jobService, ApplicationService applicationService, CandidateService candidateService, ResumeScoreService resumeScoreService, RecruiterService recruiterService, UserService userService) {
         this.jobService = jobService;
         this.applicationService = applicationService;
         this.candidateService = candidateService;
         this.resumeScoreService = resumeScoreService;
         this.recruiterService = recruiterService;
+        this.userService = userService;
     }
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("createApplication/{id}")
@@ -156,5 +159,19 @@ public class ApplicationController {
         applicationService.saveApplication(app);
         return ResponseEntity
                 .ok("Application status updated successfully");
+    }
+
+    @GetMapping("myApplications")
+    public List<ApplicationResponseForCandidate> myApplications(Authentication authentication){
+        User user=(User)authentication.getPrincipal();
+        return applicationService.find(user.getUserId())
+                .stream()
+                .map(res -> new ApplicationResponseForCandidate(
+                        res.getApplicationId(),
+                        res.getCandidate().getResumeUrl(),
+                        res.getCandidate().getUser().getEmail(),
+                        res.getCandidate().getUser().getUserName(),
+                        res.getStatus()
+                )).toList();
     }
 }

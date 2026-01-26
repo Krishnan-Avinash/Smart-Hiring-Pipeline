@@ -36,4 +36,7 @@ public class ApplicationService {
         return applicationRepository.findByJob_JobId(jobId);
     }
 
+    public List<Application> find(Long userId){
+        return applicationRepository.findByCandidate_User_UserId(userId);
+    }
 }
