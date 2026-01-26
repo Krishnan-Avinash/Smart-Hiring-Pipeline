@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -8,13 +8,27 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   async function handleSubmit() {
-    const obj = { email, password };
-    const res = await axios.post("http://localhost:8080/auth/login", obj, {
-      withCredentials: true,
-    });
-    if (res.status == 200) {
-      navigate("/temp");
+    try {
+      const loginRes = await api.post("/auth/login", { email, password });
+
+      if (loginRes.status === 200) {
+        const role = await getRole();
+
+        if (role === "CANDIDATE") {
+          navigate("/candidateLanding");
+        } else if (role === "RECRUITER") {
+          navigate("/recruiterLanding");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Login failed");
     }
+  }
+
+  async function getRole() {
+    const res = await api.get("/auth/get");
+    return res.data.role;
   }
 
   return (
