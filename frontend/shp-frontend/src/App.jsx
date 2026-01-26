@@ -3,6 +3,7 @@ import Temp from "./Temp";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
+import CandidateLanding from "./pages/candidate/CandidateLanding";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/temp" element={<Temp />} />
+        <Route path="/candidateLanding" element={<CandidateLanding />} />
       </Route>
     </Routes>
   );
