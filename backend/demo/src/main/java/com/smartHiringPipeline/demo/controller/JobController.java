@@ -1,6 +1,7 @@
 package com.smartHiringPipeline.demo.controller;
 
 import com.smartHiringPipeline.demo.dto.job.JobCreationUpdationRequest;
+import com.smartHiringPipeline.demo.dto.job.JobResponse;
 import com.smartHiringPipeline.demo.entity.Company;
 import com.smartHiringPipeline.demo.entity.Job;
 import com.smartHiringPipeline.demo.entity.Recruiter;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("jobs")
@@ -94,5 +97,25 @@ public class JobController {
         }
         return ResponseEntity
                 .ok("Job deleted successfully");
+    }
+
+    @GetMapping("getAllJobs")
+    public List<JobResponse> getAllJobs(){
+        return jobService.find()
+                .stream()
+                .map(job -> new JobResponse(
+                        job.getJobId(),
+                        job.getTitle(),
+                        job.getLocation(),
+                        job.getStatus(),
+                        job.getCompany().getName(),
+                        job.getDescription(),
+                        job.getEmploymentType(),
+                        job.getExperienceMin(),
+                        job.getExperienceMax(),
+                        job.getPrioritySkills(),
+                        job.getRequiredSkills()
+                )).toList();
+
     }
 }

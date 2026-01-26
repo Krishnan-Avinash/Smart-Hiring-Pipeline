@@ -54,4 +54,8 @@ public class JobService {
         jobRepository.delete(job);
         return findByJobId(jobId) == null;
     }
+
+    public List<Job> find(){
+        return jobRepository.findAll();
+    }
 }
