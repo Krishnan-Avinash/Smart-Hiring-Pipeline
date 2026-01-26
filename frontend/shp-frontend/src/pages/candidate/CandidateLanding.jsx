@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
+import { Link } from "react-router-dom";
 
 const CandidateLanding = () => {
   const [jobs, setJobs] = useState([]);
   async function getJobs() {
     console.log("in");
     const res = await api.get("/jobs/getAllJobs");
-    console.log(res);
+    // console.log(res);
     setJobs(res.data);
   }
   useEffect(() => {
@@ -15,6 +16,7 @@ const CandidateLanding = () => {
   return (
     <div>
       <h1>Hlo</h1>
+      <Link to="/applied">Your applications</Link>
       {jobs?.map((item, index) => (
         <div map={index}>{item.companyName}</div>
       ))}
