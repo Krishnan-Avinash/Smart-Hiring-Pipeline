@@ -17,10 +17,11 @@ public class ApplicationService {
         this.applicationRepository = applicationRepository;
     }
 
-    public void saveNewApplication(Job job, Candidate candidate){
+    public void saveNewApplication(Job job, Candidate candidate,String appliedResumeUrl){
         Application application=new Application();
         application.setJob(job);
         application.setCandidate(candidate);
+        application.setAppliedResumeUrl(appliedResumeUrl);
         applicationRepository.save(application);
     }
 

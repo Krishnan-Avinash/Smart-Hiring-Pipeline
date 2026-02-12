@@ -9,15 +9,19 @@ import lombok.NoArgsConstructor;
 public class ApplicationResponseForCandidate {
     private Long applicationId;
     private String status;
-    private String name;
-    private String email;
     private String resumeUrl;
+    private String companyName;
+    private String description;
+    private String industry;
+    private String websiteUrl;
 
-    public ApplicationResponseForCandidate(Long applicationId, String resumeUrl, String email, String name, String status) {
+    public ApplicationResponseForCandidate(Long applicationId, String status, String resumeUrl, String companyName, String description, String industry, String websiteUrl) {
         this.applicationId = applicationId;
-        this.resumeUrl = resumeUrl;
-        this.email = email;
-        this.name = name;
         this.status = status;
+        this.resumeUrl = resumeUrl;
+        this.companyName = companyName;
+        this.description = description;
+        this.industry = industry;
+        this.websiteUrl = websiteUrl;
     }
 }

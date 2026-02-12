@@ -2,6 +2,7 @@ package com.smartHiringPipeline.demo.controller;
 
 import com.smartHiringPipeline.demo.dto.application.ApplicationResponse;
 import com.smartHiringPipeline.demo.dto.application.ApplicationResponseForCandidate;
+import com.smartHiringPipeline.demo.dto.application.ApplyInCompany;
 import com.smartHiringPipeline.demo.dto.application.StatusUpdationRequest;
 import com.smartHiringPipeline.demo.entity.*;
 import com.smartHiringPipeline.demo.service.*;
@@ -35,7 +36,7 @@ public class ApplicationController {
     }
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("createApplication/{id}")
-    public ResponseEntity<?> createApplication(Authentication authentication,@PathVariable Long id){
+    public ResponseEntity<?> createApplication(Authentication authentication, @PathVariable Long id, @RequestBody ApplyInCompany body){
         User user=(User)authentication.getPrincipal();
         Job job=jobService.findByJobId(id);
         if(job == null) {
@@ -49,7 +50,11 @@ public class ApplicationController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Candidate profile not found");
         }
-        applicationService.saveNewApplication(job,candidate);
+        String appliedResumeUrl=body.getAppliedResumeUrl();
+        if(appliedResumeUrl.equals("USE ALREADY EXISTING RESUME")){
+            appliedResumeUrl=candidate.getResumeUrl();
+        }
+        applicationService.saveNewApplication(job,candidate,appliedResumeUrl);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Application created successfully");
@@ -168,10 +173,12 @@ public class ApplicationController {
                 .stream()
                 .map(res -> new ApplicationResponseForCandidate(
                         res.getApplicationId(),
-                        res.getCandidate().getResumeUrl(),
-                        res.getCandidate().getUser().getEmail(),
-                        res.getCandidate().getUser().getUserName(),
-                        res.getStatus()
+                        res.getStatus(),
+                        res.getAppliedResumeUrl(),
+                        res.getJob().getCompany().getName(),
+                        res.getJob().getCompany().getDescription(),
+                        res.getJob().getCompany().getIndustry(),
+                        res.getJob().getCompany().getWebsiteUrl()
                 )).toList();
     }
 }

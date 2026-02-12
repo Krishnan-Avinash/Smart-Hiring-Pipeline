@@ -30,6 +30,8 @@ public class Application {
 
     private String status = "APPLIED";
 
+    private String appliedResumeUrl;
+
     private LocalDateTime appliedAt;
     private LocalDateTime updatedAt;
 
