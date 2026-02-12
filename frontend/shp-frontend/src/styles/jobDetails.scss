@@ -1,0 +1,186 @@
+.jobdetails {
+  min-height: 100vh;
+  padding: 2.5rem;
+  background: linear-gradient(to bottom right, #eef2ff, #f8fafc);
+  font-family: "Inter", sans-serif;
+}
+
+.jobdetails-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.3rem;
+  color: #374151;
+}
+
+.jobdetails__topbar {
+  margin-bottom: 1.5rem;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid #d1d5db;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s ease;
+
+  &:hover {
+    background: #eef2ff;
+    border-color: #6366f1;
+  }
+}
+
+.jobdetails__card {
+  max-width: 850px;
+  margin: auto;
+  background: white;
+  padding: 2.2rem;
+  border-radius: 18px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .company {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4f46e5;
+    margin-top: 0.3rem;
+  }
+
+  .info {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.95rem;
+    color: #374151;
+
+    span {
+      background: #f3f4f6;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+    }
+  }
+
+  .desc {
+    margin-top: 1.5rem;
+    line-height: 1.6;
+    color: #4b5563;
+    font-size: 1rem;
+  }
+}
+
+.skills {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  span {
+    background: #eef2ff;
+    color: #4338ca;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+}
+
+/* Resume Box */
+.resume-box {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: #111827;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    outline: none;
+
+    &:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+  }
+
+  .apply-btn {
+    margin-top: 1.2rem;
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    &:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+  }
+
+  .success-msg {
+    margin-top: 1rem;
+    color: #16a34a;
+    font-weight: 600;
+  }
+
+  .error-msg {
+    margin-top: 1rem;
+    color: #dc2626;
+    font-weight: 600;
+  }
+}
+
+/* ATS Box */
+.ats-box {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #eef2ff;
+  border-left: 6px solid #6366f1;
+
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.6rem;
+    color: #111827;
+  }
+
+  p {
+    color: #374151;
+    font-size: 0.95rem;
+  }
+
+  .coming {
+    margin-top: 0.8rem;
+    font-weight: 600;
+    color: #4338ca;
+  }
+}

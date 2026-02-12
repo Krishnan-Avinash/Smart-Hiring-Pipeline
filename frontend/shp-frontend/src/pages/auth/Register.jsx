@@ -1,63 +1,109 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { Link, useNavigate } from "react-router-dom";
+import "../../styles/auth/register.scss";
 
 const Register = () => {
   const navigate = useNavigate();
+
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [userName, setUserName] = useState("");
   const [role, setRole] = useState("RECRUITER");
 
-  async function handleSubmit() {
-    const obj = { email, password, confirmPassword, userName, role };
-    console.log(obj);
-    const res = await axios.post("http://localhost:8080/user/createUser", obj, {
-      withCredentials: true,
-    });
-    console.log(res);
-  }
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-  function navigation() {
-    navigate("/protected");
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      await api.post("/user/createUser", {
+        userName,
+        email,
+        password,
+        confirmPassword,
+        role,
+      });
+
+      navigate("/"); // back to login after success
+    } catch (err) {
+      console.error(err);
+      alert("Registration failed");
+    }
   }
 
   return (
-    <div>
-      <input
-        type="text"
-        onChange={(e) => setUserName(e.target.value)}
-        placeholder="enter userName"
-      />
-      <br />
-      <input
-        type="text"
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="enter email"
-      />
+    <div className="auth">
+      <form className="auth__card" onSubmit={handleSubmit}>
+        <h1 className="auth__title">Create account</h1>
+        <p className="auth__subtitle">
+          Join Smart Hiring Pipeline in seconds
+        </p>
 
-      <br />
-      <input
-        type="password"
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="enter password"
-      />
-      <br />
-      <input
-        type="password"
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        placeholder="retype password"
-      />
-      <br />
-      <select id="roles" name="roles" onChange={(e) => setRole(e.target.value)}>
-        <option value="RECRUITER">RECRUITER</option>
-        <option value="CANDIDATE">CANDIDATE</option>
-      </select>
-      <br />
-      <Link to="/">Already have an account?</Link>
-      <input type="submit" onClick={handleSubmit} />
-      <button onClick={navigation}>TEMP</button>
+        <div className="auth__field">
+          <label>Username</label>
+          <input
+            type="text"
+            placeholder="Enter your username"
+            value={userName}
+            required
+            onChange={(e) => setUserName(e.target.value)}
+          />
+        </div>
+
+        <div className="auth__field">
+          <label>Email</label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            required
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="auth__field">
+          <label>Password</label>
+          <input
+            type="password"
+            placeholder="Create a password"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="auth__field">
+          <label>Confirm password</label>
+          <input
+            type="password"
+            placeholder="Re-enter your password"
+            value={confirmPassword}
+            required
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="auth__field">
+          <label>Role</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="RECRUITER">Recruiter</option>
+            <option value="CANDIDATE">Candidate</option>
+          </select>
+        </div>
+
+        <button type="submit" className="auth__button">
+          Create account
+        </button>
+
+        <p className="auth__footer">
+          Already have an account? <Link to="/">Login</Link>
+        </p>
+      </form>
     </div>
   );
 };

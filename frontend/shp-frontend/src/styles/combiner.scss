@@ -4,5 +4,6 @@
   box-sizing: border-box;
 }
 
-@import url("./auth/login.scss");
-@import url("./auth/register.scss");
+@import "./auth/login.scss";
+@import "./auth/register.scss";
+@import "./candidateLanding.scss";

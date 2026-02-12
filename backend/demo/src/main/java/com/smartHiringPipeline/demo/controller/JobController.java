@@ -48,16 +48,18 @@ public class JobController {
 
     @PreAuthorize("hasAnyRole('RECRUITER','CANDIDATE')")
     @GetMapping("getJobById/{jobId}")
-    public ResponseEntity<?> getJobById(@PathVariable Long jobId,Authentication authentication){
-        User user=(User) authentication.getPrincipal();
-        Job job=jobService.findByJobId(jobId, user.getUserName());
-        if (job == null) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Job not found");
-        }
-        return ResponseEntity.ok(job);
+    public ResponseEntity<?> getJobById(@PathVariable Long jobId){
+
+    Job job = jobService.findByJobId(jobId);
+
+    if (job == null) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Job not found");
     }
+
+    return ResponseEntity.ok(job);
+}
 
     @PreAuthorize("hasRole('RECRUITER')")
     @PutMapping("updateJobById/{jobId}")
@@ -99,7 +101,7 @@ public class JobController {
                 .ok("Job deleted successfully");
     }
 
-    @GetMapping("getAllJobs")
+    @GetMapping("/getAllJobs")
     public List<JobResponse> getAllJobs(){
         return jobService.find()
                 .stream()
