@@ -21,8 +21,6 @@ public class Candidate {
     @JoinColumn(name = "userId", nullable = false, unique = true)
     private User user;
 
-    private String resumeUrl;
-
     private String education;
 
     private Integer experienceYears;

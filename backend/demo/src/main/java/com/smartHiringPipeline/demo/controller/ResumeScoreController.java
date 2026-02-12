@@ -73,7 +73,6 @@ public class ResumeScoreController {
 
 
             Job job = application.getJob();
-            Candidate candidate = application.getCandidate();
 
 //            if (resumeScoreService.existsForApplication(application)) {
 //                return ResponseEntity
@@ -82,7 +81,7 @@ public class ResumeScoreController {
 //            }
 
             String rawResumeText =
-                    TextExtraction.extractTextFromUrl(candidate.getResumeUrl());
+                    TextExtraction.extractTextFromUrl(application.getAppliedResumeUrl());
 
             String resumeText =
                     TextExtraction.normalizeText(rawResumeText);

@@ -2,7 +2,7 @@ spring:
   application:
     name: smartHiringPipeline
   datasource:
-    url: jdbc:postgresql://db:5432/shp
+    url: jdbc:postgresql://localhost:5432/shp
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 

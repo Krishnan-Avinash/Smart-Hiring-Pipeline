@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class CandidateCreationUpdationRequest {
-
-    private String resumeUrl;
-
     private String education;
 
     private Integer experienceYears;

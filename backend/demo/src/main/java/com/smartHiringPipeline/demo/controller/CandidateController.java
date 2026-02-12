@@ -61,9 +61,6 @@ public class CandidateController {
         if(temp==null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Candidate profile not found");
         }
-        if(!temp.getResumeUrl().equals(body.getResumeUrl())){
-            temp.setResumeUrl(body.getResumeUrl());
-        }
         if(!temp.getEducation().equals(body.getEducation())){
             temp.setEducation(body.getEducation());
         }

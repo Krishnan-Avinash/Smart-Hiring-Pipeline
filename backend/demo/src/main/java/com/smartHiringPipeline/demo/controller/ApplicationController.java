@@ -45,16 +45,13 @@ public class ApplicationController {
                     .body("Job not found");
         }
         Candidate candidate=candidateService.findByUserId(user.getUserId());
+        System.out.println("CANDIDATEEEEEEEEEEEEEEEEEEEEEEEEEE"+candidate);
         if (candidate == null) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Candidate profile not found");
         }
-        String appliedResumeUrl=body.getAppliedResumeUrl();
-        if(appliedResumeUrl.equals("USE ALREADY EXISTING RESUME")){
-            appliedResumeUrl=candidate.getResumeUrl();
-        }
-        applicationService.saveNewApplication(job,candidate,appliedResumeUrl);
+        applicationService.saveNewApplication(job,candidate,body.getAppliedResumeUrl());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body("Application created successfully");
@@ -83,7 +80,7 @@ public class ApplicationController {
         res.setStatus(app.getStatus());
         res.setName(app.getCandidate().getUser().getUserName());
         res.setEmail(app.getCandidate().getUser().getEmail());
-        res.setResumeUrl(app.getCandidate().getResumeUrl());
+        res.setResumeUrl(app.getAppliedResumeUrl());
         if(temp!=null){
             res.setFinalScore(temp.getFinalScore());
             res.setAiScore(temp.getAiScore());
@@ -126,7 +123,7 @@ public class ApplicationController {
                             ret.setStatus(application.getStatus());
                             ret.setName(application.getCandidate().getUser().getUserName());
                             ret.setEmail(application.getCandidate().getUser().getEmail());
-                            ret.setResumeUrl(application.getCandidate().getResumeUrl());
+                            ret.setResumeUrl(application.getAppliedResumeUrl());
 
                             if (score != null) {
                                 ret.setAiScore(score.getAiScore());

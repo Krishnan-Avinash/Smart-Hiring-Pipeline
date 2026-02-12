@@ -19,7 +19,6 @@ public class CandidateService{
         temp.setEducation(body.getEducation());
         temp.setUser(user);
         temp.setExperienceYears(body.getExperienceYears());
-        temp.setResumeUrl(body.getResumeUrl());
         temp.setProfileSummary(body.getProfileSummary());
         candidateRepository.save(temp);
     }
@@ -33,6 +32,7 @@ public class CandidateService{
     }
 
     public Candidate findByUserId(Long userId){
-        return candidateRepository.findByUser_UserId(userId);
+        Candidate temp= candidateRepository.findByUser_UserId(userId);
+        return temp;
     }
 }
