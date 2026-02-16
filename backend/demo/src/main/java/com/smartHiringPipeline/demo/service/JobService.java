@@ -58,4 +58,8 @@ public class JobService {
     public List<Job> find(){
         return jobRepository.findAll();
     }
+
+    public List<Job> findForARecruiter(Long userId){
+        return jobRepository.findByCreatedBy_UserId(userId);
+    }
 }

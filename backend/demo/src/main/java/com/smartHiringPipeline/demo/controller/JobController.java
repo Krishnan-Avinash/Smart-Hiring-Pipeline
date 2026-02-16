@@ -120,4 +120,25 @@ public class JobController {
                 )).toList();
 
     }
+
+    @PreAuthorize("hasRole('RECRUITER')")
+    @GetMapping("/getJobsOfARecruiter")
+    public List<JobResponse> getJobsOfARecruiter(Authentication authentication){
+        User user=(User)authentication.getPrincipal();
+        return jobService.findForARecruiter(user.getUserId())
+                .stream()
+                .map(job -> new JobResponse(
+                        job.getJobId(),
+                        job.getTitle(),
+                        job.getLocation(),
+                        job.getStatus(),
+                        job.getCompany().getName(),
+                        job.getDescription(),
+                        job.getEmploymentType(),
+                        job.getExperienceMin(),
+                        job.getExperienceMax(),
+                        job.getPrioritySkills(),
+                        job.getRequiredSkills()
+                )).toList();
+    }
 }
