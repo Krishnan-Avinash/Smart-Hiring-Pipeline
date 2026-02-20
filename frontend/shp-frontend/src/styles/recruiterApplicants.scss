@@ -1,0 +1,54 @@
+.applicants {
+  min-height: 100vh;
+  padding: 2.5rem;
+  background: linear-gradient(to right, #f9fafb, #eef2ff);
+  font-family: "Inter", sans-serif;
+}
+
+.back-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  margin-bottom: 2rem;
+
+  &:hover {
+    background: #eef2ff;
+  }
+}
+
+.applicants__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.app-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+
+  h3 {
+    font-size: 1.2rem;
+    color: #111827;
+  }
+
+  .scores {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #eef2ff;
+    border-radius: 12px;
+
+    h2 {
+      margin-top: 0.6rem;
+      color: #4f46e5;
+    }
+  }
+
+  .status {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}

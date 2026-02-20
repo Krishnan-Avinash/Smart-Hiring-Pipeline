@@ -32,7 +32,7 @@ const AppliedJobs = () => {
         <h1>My Applications</h1>
       </div>
 
-      {/* Applications List */}
+      
       <div className="applied__list">
         {applications.length === 0 ? (
           <p className="empty">No applications submitted yet.</p>

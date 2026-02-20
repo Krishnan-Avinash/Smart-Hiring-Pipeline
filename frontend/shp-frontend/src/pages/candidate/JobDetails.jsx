@@ -46,7 +46,7 @@ const JobDetails = () => {
     try {
       setApplyLoading(true);
 
-      // ✅ Send resumeUrl as request body
+      //  Send resumeUrl as request body
       const res = await api.post(
         `/application/createApplication/${jobId}`,
         {
@@ -67,12 +67,12 @@ const JobDetails = () => {
     }
   }
 
-  // Loading UI
+  
   if (loading) {
     return <div className="jobdetails-loading">Loading Job Details...</div>;
   }
 
-  // Error UI
+ 
   if (error && !job) {
     return (
       <div className="jobdetails-loading">
@@ -87,7 +87,7 @@ const JobDetails = () => {
     );
   }
 
-  // ✅ Combine both skill fields
+  
   const allSkills = (
     (job.requiredSkills || "") +
     "," +
@@ -109,7 +109,7 @@ const JobDetails = () => {
         </button>
       </div>
 
-      {/* Job Card */}
+    
       <div className="jobdetails__card">
         <h1>{job.title}</h1>
 
@@ -125,7 +125,7 @@ const JobDetails = () => {
 
         <p className="desc">{job.description}</p>
 
-        {/* Skills */}
+        
         <div className="skills">
           {allSkills.map((skill, i) => (
             <span key={i}>{skill}</span>
@@ -151,12 +151,12 @@ const JobDetails = () => {
             {applyLoading ? "Applying..." : "Apply Now 🚀"}
           </button>
 
-          {/* Messages */}
+          
           {message && <p className="success-msg">{message}</p>}
           {error && <p className="error-msg">{error}</p>}
         </div>
 
-        {/* ATS Score Placeholder */}
+        
         <div className="ats-box">
           <h3>ATS Resume Score</h3>
           <p>

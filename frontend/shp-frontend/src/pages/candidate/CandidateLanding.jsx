@@ -11,7 +11,7 @@ const CandidateLanding = () => {
 
   const navigate = useNavigate();
 
-  // ✅ Fetch Jobs
+  // Fetch Jobs
   async function getJobs() {
     try {
       const res = await api.get("/jobs/getAllJobs");
@@ -21,7 +21,7 @@ const CandidateLanding = () => {
     }
   }
 
-  // ✅ Fetch Logged-in Candidate Username
+  
   async function getUserProfile() {
     try {
       const res = await api.get("/auth/get"); 
@@ -31,7 +31,7 @@ const CandidateLanding = () => {
     }
   }
 
-  // ✅ Logout Function
+  // Logout Function
   async function handleLogout() {
     try {
       await api.post("/auth/logout");
@@ -54,45 +54,45 @@ const CandidateLanding = () => {
   return (
     <div className="candidate">
 
-      {/* ✅ Navbar */}
+      {/* Navbar */}
       <nav className="candidate__navbar">
         <div className="candidate__logo">
           Smart<span>Hire</span>
         </div>
 
         <div className="candidate__navRight">
-          {/* ✅ Username */}
+         
           {user && (
             <p className="candidate__username">
               Welcome, <span>{user.userName}</span>
             </p>
           )}
 
-          {/* Applications Button */}
+          
           <Link to="/applied" className="candidate__navBtn">
             My Applications
           </Link>
 
-          {/* Logout Button */}
+         
           <button onClick={handleLogout} className="candidate__logoutBtn">
             Logout
           </button>
         </div>
       </nav>
 
-      {/* Page Title */}
+      
       <div className="candidate__header">
         <h1>Explore Available Jobs</h1>
         <p>Apply to jobs that match your skills and experience.</p>
       </div>
 
-      {/* Search Bar */}
+     
       <div className="candidate__search">
         <input type="text" placeholder="Search jobs by title, skills, or location..." value={search}
         onChange={(e) => setSearch(e.target.value)}/>
         </div>
 
-      {/* Jobs Grid */}
+      
       <div className="candidate__grid">
         {filteredJobs?.map((job) => (
           <div className="job-card" key={job.jobId}>
@@ -118,7 +118,7 @@ const CandidateLanding = () => {
               <span className="job-card__type">{job.employmentType}</span>
             </div>
 
-            {/* Skills */}
+            
             <div className="job-card__skills">
               {job.requiredSkills
                 ?.split(",")
@@ -128,7 +128,7 @@ const CandidateLanding = () => {
                 ))}
             </div>
 
-            {/* Apply Button */}
+            
             <button className="job-card__apply"
               onClick={() => navigate(`/job/${job.jobId}`)}>
               Apply Now 🚀
