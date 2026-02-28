@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {
@@ -7,9 +7,7 @@ const ProtectedRoute = () => {
 
   async function getLoggedin() {
     try {
-      await axios.get("http://localhost:8080/auth/get", {
-        withCredentials: true,
-      });
+      await api.get("/auth/get"); // ✅ cookie included
       setLoggedin(true);
     } catch {
       setLoggedin(false);

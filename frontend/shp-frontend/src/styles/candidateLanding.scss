@@ -5,7 +5,7 @@
   font-family: "Inter", sans-serif;
 }
 
-/* ✅ Navbar */
+/*  Navbar */
 .candidate__navbar {
   width: 100%;
   padding: 1.2rem 3rem;
@@ -19,7 +19,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Logo */
+
 .candidate__logo {
   font-size: 1.6rem;
   font-weight: 800;
@@ -30,14 +30,14 @@
   }
 }
 
-/* Right Side */
+
 .candidate__navRight {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Username */
+
 .candidate__username {
   font-size: 0.95rem;
   color: #374151;
@@ -48,7 +48,7 @@
   }
 }
 
-/* Nav Button */
+
 .candidate__navBtn {
   padding: 0.55rem 1.2rem;
   border-radius: 999px;
@@ -64,7 +64,7 @@
   }
 }
 
-/* Logout */
+
 .candidate__logoutBtn {
   padding: 0.55rem 1.2rem;
   border-radius: 999px;
@@ -82,7 +82,7 @@
   }
 }
 
-/* Header Section */
+
 .candidate__header {
   padding: 2.5rem 3rem 1.5rem;
 
@@ -99,7 +99,7 @@
   }
 }
 
-/* ✅ Search Bar */
+/* Search Bar */
 .candidate__search {
   padding: 0 3rem;
   margin-bottom: 2rem;
@@ -122,7 +122,7 @@
   }
 }
 
-/* Jobs Grid */
+
 .candidate__grid {
   padding: 0 3rem;
   display: grid;
@@ -130,7 +130,6 @@
   gap: 2rem;
 }
 
-/* Job Card */
 .job-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
@@ -204,7 +203,7 @@
   }
 }
 
-/* Apply Button */
+
 .job-card__apply {
   width: 100%;
   padding: 0.75rem;
