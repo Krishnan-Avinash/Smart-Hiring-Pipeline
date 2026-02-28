@@ -6,6 +6,7 @@ import com.smartHiringPipeline.demo.entity.Company;
 import com.smartHiringPipeline.demo.entity.Job;
 import com.smartHiringPipeline.demo.entity.Recruiter;
 import com.smartHiringPipeline.demo.entity.User;
+import com.smartHiringPipeline.demo.service.CandidateService;
 import com.smartHiringPipeline.demo.service.JobService;
 import com.smartHiringPipeline.demo.service.RecruiterService;
 import jakarta.transaction.Transactional;
@@ -22,11 +23,13 @@ import java.util.List;
 public class JobController {
 
     private final RecruiterService recruiterService;
+    private final CandidateService candidateService;
     private final JobService jobService;
 
-    public JobController(RecruiterService recruiterService, JobService jobService) {
+    public JobController(RecruiterService recruiterService, JobService jobService, CandidateService candidateService) {
         this.recruiterService = recruiterService;
         this.jobService = jobService;
+        this.candidateService=candidateService;
     }
 
     @PostMapping("createNewJob")
@@ -126,6 +129,28 @@ public class JobController {
     public List<JobResponse> getJobsOfARecruiter(Authentication authentication){
         User user=(User)authentication.getPrincipal();
         return jobService.findForARecruiter(user.getUserId())
+                .stream()
+                .map(job -> new JobResponse(
+                        job.getJobId(),
+                        job.getTitle(),
+                        job.getLocation(),
+                        job.getStatus(),
+                        job.getCompany().getName(),
+                        job.getDescription(),
+                        job.getEmploymentType(),
+                        job.getExperienceMin(),
+                        job.getExperienceMax(),
+                        job.getPrioritySkills(),
+                        job.getRequiredSkills()
+                )).toList();
+    }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping("/getAllNotAppliedJobs")
+    public List<JobResponse> getAllNotAppliedJobs(Authentication authentication){
+        User user=(User) authentication.getPrincipal();
+        Long candidateId=candidateService.findByUserId(user.getUserId()).getCandidateId();
+        return jobService.getJobsNotApplied(candidateId)
                 .stream()
                 .map(job -> new JobResponse(
                         job.getJobId(),

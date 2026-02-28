@@ -62,4 +62,8 @@ public class JobService {
     public List<Job> findForARecruiter(Long userId){
         return jobRepository.findByCreatedBy_UserId(userId);
     }
+
+    public List<Job> getJobsNotApplied(Long candidateId) {
+        return jobRepository.findJobsNotAppliedByCandidate(candidateId);
+    }
 }
