@@ -1,0 +1,54 @@
+.candidate-setup {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fb;
+}
+
+.candidate-setup h1 {
+  margin-bottom: 20px;
+}
+
+.candidate-setup form {
+  width: 400px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.candidate-setup input,
+.candidate-setup textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.candidate-setup textarea {
+  resize: none;
+  height: 80px;
+}
+
+.candidate-setup button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #5f6df5, #7a5af8);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.candidate-setup button:hover {
+  opacity: 0.9;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}

@@ -11,6 +11,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("RECRUITER");
+  const [designation, setDesignation] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -21,15 +22,43 @@ const Register = () => {
     }
 
     try {
-      await api.post("/user/createUser", {
-        userName,
-        email,
-        password,
-        confirmPassword,
-        role,
-      });
+      // 1️⃣ Create User
+      await api.post(
+        "/user/createUser",
+        {
+          userName,
+          email,
+          password,
+          confirmPassword,
+          role,
+        },
+        { withCredentials: true }
+      );
 
-      navigate("/"); // back to login after success
+      // 2️⃣ Login immediately (to set JWT cookie)
+      await api.post(
+        "/auth/login",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
+
+      // 3️⃣ If recruiter → create recruiter profile
+      if (role === "RECRUITER") {
+        await api.post(
+          "/recruiter/createNewRecruiter",
+          {
+            designation,
+            email,
+          },
+          { withCredentials: true }
+        );
+      }
+
+      alert("Registration successful!");
+      navigate("/"); // back to login or landing
     } catch (err) {
       console.error(err);
       alert("Registration failed");
@@ -95,6 +124,19 @@ const Register = () => {
             <option value="CANDIDATE">Candidate</option>
           </select>
         </div>
+
+        {role === "RECRUITER" && (
+          <div className="auth__field">
+            <label>Designation</label>
+            <input
+              type="text"
+              placeholder="HR, Hiring Manager, Recruiter..."
+              value={designation}
+              required
+              onChange={(e) => setDesignation(e.target.value)}
+            />
+          </div>
+        )}
 
         <button type="submit" className="auth__button">
           Create account

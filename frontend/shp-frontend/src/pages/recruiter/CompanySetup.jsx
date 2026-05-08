@@ -5,8 +5,6 @@ import "../../styles/companySetup.scss";
 
 const CompanySetup = () => {
   const [companyData, setCompanyData] = useState({
-    designation: "",
-    recruiterEmail: "",
     name: "",
     description: "",
     industry: "",
@@ -27,12 +25,41 @@ const CompanySetup = () => {
       alert("Company Created Successfully!");
 
       
-      navigate("/recruiterLanding");
+      navigate("/recruiterLanding", { replace: true });
     } catch (err) {
       console.error(err);
       alert("Company creation failed!");
     }
   }
+
+// useEffect(() => {
+//   let isMounted = true;
+
+//   async function checkIfCompanyExists() {
+//     try {
+//       const res = await api.get("/recruiter/getSelf", {
+//         withCredentials: true,
+//       });
+
+//       if (!isMounted) return;
+
+//       // If recruiter already has company → redirect once
+//       if (res.data.companyId) {
+//         navigate("/recruiterLanding", { replace: true });
+//       }
+
+//     } catch (err) {
+//       if (!isMounted) return;
+//       navigate("/", { replace: true });
+//     }
+//   }
+
+//   checkIfCompanyExists();
+
+//   return () => {
+//     isMounted = false;
+//   };
+// }, [navigate]);
 
 return (
   <div className="companySetup">
@@ -42,23 +69,6 @@ return (
 
       <form onSubmit={handleSubmit}>
 
-        <input
-          type="text"
-          name="designation"
-          placeholder="HR, Manager..."
-          value={companyData.designation}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-        type="email"
-        name="recruiterEmail"
-        placeholder="Recruiter Email"
-        value={companyData.recruiterEmail}
-        onChange={handleChange}
-        required
-        />
 
         <input
           type="text"

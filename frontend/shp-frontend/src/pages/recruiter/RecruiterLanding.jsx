@@ -27,13 +27,6 @@ const RecruiterLanding = () => {
     try {
       const res = await api.get("/auth/get");
       setUser(res.data);
-
-      // Redirect recruiter if company not set
-      if (!res.data.company) {
-        navigate("/company-setup");
-        return;
-      }
-
       getRecruiterJobs();
     } catch (err) {
       console.error("Error fetching recruiter profile:", err);
@@ -49,11 +42,9 @@ const RecruiterLanding = () => {
     }
   }
 
-
   function handleChange(e) {
     setJobData({ ...jobData, [e.target.name]: e.target.value });
   }
-
 
   async function handleCreateJob(e) {
     e.preventDefault();
@@ -62,10 +53,8 @@ const RecruiterLanding = () => {
       await api.post("/jobs/createNewJob", jobData);
 
       alert("Job Created Successfully!");
-
       getRecruiterJobs();
 
-      // Reset Form
       setJobData({
         title: "",
         description: "",
@@ -85,7 +74,6 @@ const RecruiterLanding = () => {
     }
   }
 
-  
   async function handleLogout() {
     try {
       await api.post("/auth/logout");
@@ -95,7 +83,6 @@ const RecruiterLanding = () => {
     }
   }
 
- 
   useEffect(() => {
     getRecruiterProfile();
   }, []);
@@ -115,18 +102,9 @@ const RecruiterLanding = () => {
             </p>
           )}
 
-         
           <button
             className="recruiter__createBtn"
-            disabled={!user?.company}
-            onClick={() => {
-              if (!user?.company) {
-                alert("Please setup your company first!");
-                navigate("/company-setup");
-                return;
-              }
-              setShowForm(!showForm);
-            }}
+            onClick={() => setShowForm(!showForm)}
           >
             + Create Job
           </button>
@@ -137,10 +115,10 @@ const RecruiterLanding = () => {
         </div>
       </nav>
 
-      
+      {/* Header */}
       <div className="recruiter__header">
         <h1>Recruiter Dashboard</h1>
-        <p>Manage jobs created by you and view applicants ATS scores.</p>
+        <p>Manage jobs created by you and review applicants.</p>
       </div>
 
       {/* Job Form */}
@@ -229,24 +207,38 @@ const RecruiterLanding = () => {
       {/* Jobs List */}
       <div className="recruiter__grid">
         {jobs.map((job) => (
-          <div
-            className="job-card"
-            key={job.jobId}
-            onClick={() => navigate(`/recruiter/job/${job.jobId}`)}
-          >
-            <h3>{job.title}</h3>
+          <div className="job-card" key={job.jobId}>
+
+            <div className="job-card__top">
+              <h3>{job.title}</h3>
+
+              <span className={`status ${job.status.toLowerCase()}`}>
+                {job.status}
+              </span>
+            </div>
+
             <p className="company">{job.companyName}</p>
 
             <p className="location">📍 {job.location}</p>
 
             <div className="meta">
               <span>
-                Exp: {job.experienceMin}–{job.experienceMax} yrs
+                Experience: {job.experienceMin} – {job.experienceMax} yrs
               </span>
-              <span className="status">{job.status}</span>
+
+              <span className="employment">{job.employmentType}</span>
             </div>
 
-            <p className="view-applicants">Click to View Applicants →</p>
+            <button
+              className="applicants-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/recruiter/job/${job.jobId}`);
+              }}
+            >
+              View Applicants →
+            </button>
+
           </div>
         ))}
       </div>

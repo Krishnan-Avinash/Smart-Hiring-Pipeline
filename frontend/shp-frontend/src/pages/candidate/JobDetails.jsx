@@ -8,15 +8,14 @@ const JobDetails = () => {
   const navigate = useNavigate();
 
   const [job, setJob] = useState(null);
-
   const [resumeUrl, setResumeUrl] = useState("");
   const [loading, setLoading] = useState(true);
 
   const [applyLoading, setApplyLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [applied, setApplied] = useState(false);
 
-  // Fetch Job Details
   async function fetchJobDetails() {
     try {
       const res = await api.get(`/jobs/getJobById/${jobId}`);
@@ -24,55 +23,62 @@ const JobDetails = () => {
     } catch (err) {
       console.error("Error fetching job details:", err);
       setError("Job not found or server error.");
-    } finally {
-      setLoading(false);
+    }
+  }
+
+  async function checkApplication() {
+    try {
+      const res = await api.get(`/application/checkApplication/${jobId}`);
+
+      if (res.data === true || res.data.applied === true) {
+        setApplied(true);
+      }
+    } catch (err) {
+      console.error("Check Application Error:", err);
     }
   }
 
   useEffect(() => {
-    fetchJobDetails();
-  }, []);
-
-  // Apply Job
-  async function handleApply() {
-    setError("");
-    setMessage("");
-
-    if (!resumeUrl.trim()) {
-      setError("Please provide your resume Google Drive link.");
-      return;
+    async function init() {
+      await fetchJobDetails();
+      await checkApplication();
+      setLoading(false);
     }
 
-    try {
-      setApplyLoading(true);
+    init();
+  }, [jobId]);
 
-      //  Send resumeUrl as request body
-      const res = await api.post(
-        `/application/createApplication/${jobId}`,
-        {
-          resumeUrl: resumeUrl,
-        }
-      );
+async function handleApply() {
+  setError("");
+  setMessage("");
 
-      console.log("Application Response:", res.data);
-
-      setMessage(
-        "Application submitted successfully! Resume scoring will appear soon."
-      );
-    } catch (err) {
-      console.error("Apply Error:", err);
-      setError("Failed to apply. Please try again.");
-    } finally {
-      setApplyLoading(false);
-    }
+  if (!resumeUrl.trim()) {
+    setError("Please provide your resume Google Drive link.");
+    return;
   }
 
-  
+  try {
+    setApplyLoading(true);
+
+    await api.post(`/application/createApplication/${jobId}`, {
+      appliedResumeUrl: resumeUrl,
+    });
+
+    setMessage("Application submitted successfully!");
+    setApplied(true);
+    setResumeUrl("");
+  } catch (err) {
+    console.error("Apply Error:", err);
+    setError(err.response?.data || "Failed to apply. Please try again.");
+  } finally {
+    setApplyLoading(false);
+  }
+}
+
   if (loading) {
     return <div className="jobdetails-loading">Loading Job Details...</div>;
   }
 
- 
   if (error && !job) {
     return (
       <div className="jobdetails-loading">
@@ -87,11 +93,8 @@ const JobDetails = () => {
     );
   }
 
-  
   const allSkills = (
-    (job.requiredSkills || "") +
-    "," +
-    (job.prioritySkills || "")
+    (job.requiredSkills || "") + "," + (job.prioritySkills || "")
   )
     .split(",")
     .map((s) => s.trim())
@@ -99,7 +102,6 @@ const JobDetails = () => {
 
   return (
     <div className="jobdetails">
-      {/* Top Bar */}
       <div className="jobdetails__topbar">
         <button
           className="back-btn"
@@ -109,11 +111,16 @@ const JobDetails = () => {
         </button>
       </div>
 
-    
       <div className="jobdetails__card">
         <h1>{job.title}</h1>
 
         <p className="company">{job.company?.name}</p>
+
+        {applied && (
+          <div className="applied-badge">
+            ✅ Already Applied
+          </div>
+        )}
 
         <div className="info">
           <span>📍 {job.location}</span>
@@ -125,15 +132,15 @@ const JobDetails = () => {
 
         <p className="desc">{job.description}</p>
 
-        
         <div className="skills">
           {allSkills.map((skill, i) => (
             <span key={i}>{skill}</span>
           ))}
         </div>
 
-        {/* Resume Upload */}
-        <div className="resume-box">
+        {/* Resume Box */}
+
+        <div className={`resume-box ${applied ? "disabled" : ""}`}>
           <h3>Upload Resume Link</h3>
 
           <input
@@ -141,27 +148,23 @@ const JobDetails = () => {
             placeholder="Paste Google Drive Resume Link..."
             value={resumeUrl}
             onChange={(e) => setResumeUrl(e.target.value)}
+            disabled={applied}
           />
 
           <button
             className="apply-btn"
             onClick={handleApply}
-            disabled={applyLoading}
+            disabled={applyLoading || applied}
           >
-            {applyLoading ? "Applying..." : "Apply Now 🚀"}
+            {applyLoading
+              ? "Applying..."
+              : applied
+              ? "Applied ✅"
+              : "Apply Now 🚀"}
           </button>
 
-          
           {message && <p className="success-msg">{message}</p>}
           {error && <p className="error-msg">{error}</p>}
-        </div>
-
-        
-        <div className="ats-box">
-          <h3>ATS Resume Score</h3>
-          <p>
-            Score...
-          </p>
         </div>
       </div>
     </div>

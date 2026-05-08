@@ -7,28 +7,36 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault(); // important for form submit
+async function handleSubmit(e) {
+  e.preventDefault();
 
-    try {
-      const loginRes = await api.post("/auth/login", { email, password });
+  try {
+    await api.post(
+      "/auth/login",
+      { email, password },
+      { withCredentials: true }
+    );
 
-      if (loginRes.status === 200) {
-        const roleRes = await api.get("/auth/get");
-        const role = roleRes.data.role;
+    const userRes = await api.get("/auth/get", {
+      withCredentials: true,
+    });
 
-        if (role === "CANDIDATE") {
-          navigate("/candidateLanding");
-        } else if (role === "RECRUITER") {
-          navigate("/recruiterLanding");
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Login failed");
+    const user = userRes.data;
+
+    if (user.role === "CANDIDATE") {
+      navigate("/candidateLanding", { replace: true });
+    } 
+    else if (user.role === "RECRUITER") {
+      navigate("/recruiterLanding", { replace: true });
     }
+
+  } catch (err) {
+    console.error(err);
+    alert("Login failed");
   }
+}
 
   return (
     <div className="auth">
@@ -60,8 +68,12 @@ const Login = () => {
           />
         </div>
 
-        <button type="submit" className="auth__button">
-          Login
+        <button
+          type="submit"
+          className="auth__button"
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <p className="auth__footer">

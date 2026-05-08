@@ -1,54 +1,119 @@
-.applicants {
-  min-height: 100vh;
-  padding: 2.5rem;
-  background: linear-gradient(to right, #f9fafb, #eef2ff);
-  font-family: "Inter", sans-serif;
+.pipeline{
+  min-height:100vh;
+  padding:40px;
+  background:linear-gradient(120deg,#eef2ff,#f8fafc);
 }
 
-.back-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  cursor: pointer;
-  margin-bottom: 2rem;
-
-  &:hover {
-    background: #eef2ff;
-  }
+.board{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:25px;
 }
 
-.applicants__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1.5rem;
+.column{
+  padding:20px;
+  border-radius:14px;
+  min-height:600px;
+  background:white;
+  box-shadow:0 15px 40px rgba(0,0,0,0.08);
+  transition: background .2s;
 }
 
-.app-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+.column:hover{
+  background:#f8fafc;
+}
 
-  h3 {
-    font-size: 1.2rem;
-    color: #111827;
-  }
+.column h2{
+  margin-bottom:15px;
+  font-weight:700;
+}
 
-  .scores {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #eef2ff;
-    border-radius: 12px;
+.applied{
+  border-top:5px solid #6366f1;
+}
 
-    h2 {
-      margin-top: 0.6rem;
-      color: #4f46e5;
-    }
-  }
+.shortlisted{
+  border-top:5px solid #10b981;
+}
 
-  .status {
-    margin-top: 1rem;
-    font-weight: 600;
-    color: #374151;
-  }
+.interview{
+  border-top:5px solid #f59e0b;
+}
+
+.candidate-card{
+
+  background:white;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:14px;
+
+  border:1px solid #e5e7eb;
+
+  cursor:grab;
+
+  transition: transform .2s, box-shadow .2s;
+
+}
+
+.candidate-card:hover{
+
+  transform:translateY(-5px);
+  box-shadow:0 20px 40px rgba(0,0,0,0.1);
+
+}
+
+.candidate-card:active{
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow:0 25px 50px rgba(0,0,0,0.15);
+}
+
+.email{
+  font-size:13px;
+  color:#6b7280;
+}
+
+.resume-link{
+  display:block;
+  margin-top:6px;
+  color:#6366f1;
+  font-weight:600;
+}
+
+.scores{
+  margin-top:10px;
+}
+
+.score{
+  margin-top:6px;
+}
+
+.bar{
+
+  height:6px;
+  background:#e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+
+}
+
+.bar div{
+
+  height:100%;
+  background:linear-gradient(90deg,#6366f1,#4f46e5);
+
+}
+
+.final{
+  margin-top:8px;
+  font-weight:700;
+}
+
+.back-btn{
+  margin-bottom:20px;
+  padding:8px 14px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  cursor:pointer;
+  background:white;
 }

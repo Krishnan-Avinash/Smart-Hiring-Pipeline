@@ -3,24 +3,24 @@ import api from "../api/axios";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {
-  const [loggedin, setLoggedin] = useState(null);
-
-  async function getLoggedin() {
-    try {
-      await api.get("/auth/get"); // ✅ cookie included
-      setLoggedin(true);
-    } catch {
-      setLoggedin(false);
-    }
-  }
+  const [loggedIn, setLoggedIn] = useState(null);
 
   useEffect(() => {
-    getLoggedin();
+    async function checkAuth() {
+      try {
+        await api.get("/auth/get");
+        setLoggedIn(true);
+      } catch {
+        setLoggedIn(false);
+      }
+    }
+
+    checkAuth();
   }, []);
 
-  if (loggedin === null) return <div>Loading...</div>;
+  if (loggedIn === null) return <div>Loading...</div>;
 
-  return loggedin ? <Outlet /> : <Navigate to="/" replace />;
+  return loggedIn ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default ProtectedRoute;

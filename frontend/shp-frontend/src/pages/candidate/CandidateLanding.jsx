@@ -3,15 +3,17 @@ import api from "../../api/axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/candidateLanding.scss";
 
-
 const CandidateLanding = () => {
   const [jobs, setJobs] = useState([]);
   const [user, setUser] = useState(null);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const navigate = useNavigate();
 
-  // Fetch Jobs
+  /* ---------------- FETCH DATA ---------------- */
+
   async function getJobs() {
     try {
       const res = await api.get("/jobs/getAllJobs");
@@ -21,17 +23,15 @@ const CandidateLanding = () => {
     }
   }
 
-  
   async function getUserProfile() {
     try {
-      const res = await api.get("/auth/get"); 
-      setUser(res.data); 
+      const res = await api.get("/auth/get");
+      setUser(res.data);
     } catch (err) {
       console.error("Error fetching user profile:", err);
     }
   }
 
-  // Logout Function
   async function handleLogout() {
     try {
       await api.post("/auth/logout");
@@ -42,60 +42,100 @@ const CandidateLanding = () => {
   }
 
   useEffect(() => {
-    getJobs();
-    getUserProfile();
+    async function loadData() {
+      setLoading(true);
+      await Promise.all([getJobs(), getUserProfile()]);
+      setLoading(false);
+    }
+    loadData();
   }, []);
 
-  const filteredJobs = jobs.filter((job) =>
-  job.title.toLowerCase().includes(search.toLowerCase()) ||
-  job.location.toLowerCase().includes(search.toLowerCase()) ||
-  job.requiredSkills.toLowerCase().includes(search.toLowerCase()));
+  /* ---------------- FILTER LOGIC ---------------- */
+
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(search.toLowerCase()) ||
+      job.location.toLowerCase().includes(search.toLowerCase()) ||
+      (job.requiredSkills || "")
+        .toLowerCase()
+        .includes(search.toLowerCase())
+  );
 
   return (
     <div className="candidate">
-
-      {/* Navbar */}
+      {/* ---------------- NAVBAR ---------------- */}
       <nav className="candidate__navbar">
         <div className="candidate__logo">
           Smart<span>Hire</span>
         </div>
 
         <div className="candidate__navRight">
-         
-          {user && (
-            <p className="candidate__username">
-              Welcome, <span>{user.userName}</span>
-            </p>
-          )}
-
-          
-          <Link to="/applied" className="candidate__navBtn">
+          <Link to="/candidate/my-applications" className="candidate__navBtn">
             My Applications
           </Link>
 
-         
-          <button onClick={handleLogout} className="candidate__logoutBtn">
-            Logout
-          </button>
+          <div
+            className="candidate__profileWrapper"
+            onMouseEnter={() => setShowDropdown(true)}
+            onMouseLeave={() => setShowDropdown(false)}
+          >
+            <div className="candidate__profileIcon">
+              {user?.userName?.charAt(0).toUpperCase()}
+              <span className="candidate__onlineDot"></span>
+            </div>
+
+            <div
+              className={`candidate__profileDropdown ${
+                showDropdown ? "active" : ""
+              }`}
+            >
+              <div
+                className="candidate__dropdownItem"
+                onClick={() => navigate("/candidate/profile")}
+              >
+                My Profile
+              </div>
+
+              <div
+                className="candidate__dropdownItem logout"
+                onClick={handleLogout}
+              >
+                Logout
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
 
-      
-      <div className="candidate__header">
-        <h1>Explore Available Jobs</h1>
-        <p>Apply to jobs that match your skills and experience.</p>
+      {/* ---------------- HERO ---------------- */}
+      <div className="candidate__hero">
+        <h1>Discover Your Next Opportunity</h1>
       </div>
 
-     
+      {/* ---------------- SEARCH ---------------- */}
       <div className="candidate__search">
-        <input type="text" placeholder="Search jobs by title, skills, or location..." value={search}
-        onChange={(e) => setSearch(e.target.value)}/>
-        </div>
+        <input
+          type="text"
+          placeholder="Search by title, skills, location..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-      
+      {/* ---------------- LOADING ---------------- */}
+      {loading && <p className="candidate__loading">Loading jobs...</p>}
+
+      {/* ---------------- EMPTY STATE ---------------- */}
+      {!loading && filteredJobs.length === 0 && (
+        <div className="candidate__empty">
+          No jobs found.
+        </div>
+      )}
+
+      {/* ---------------- JOB GRID ---------------- */}
       <div className="candidate__grid">
-        {filteredJobs?.map((job) => (
-          <div className="job-card" key={job.jobId}>
+        {filteredJobs.map((job) => (
+          <div className="job-card fade-in" key={job.jobId}>
             <div className="job-card__header">
               <h3>{job.title}</h3>
               <span className="job-card__company">
@@ -103,22 +143,25 @@ const CandidateLanding = () => {
               </span>
             </div>
 
-            <p className="job-card__location">📍 {job.location}</p>
+            <p className="job-card__location">
+              📍 {job.location}
+            </p>
 
             <p className="job-card__desc">
-              {job.description.length > 90
-                ? job.description.substring(0, 90) + "..."
+              {job.description.length > 100
+                ? job.description.substring(0, 100) + "..."
                 : job.description}
             </p>
 
             <div className="job-card__meta">
               <span>
-                Experience: {job.experienceMin}–{job.experienceMax} yrs
+                {job.experienceMin}–{job.experienceMax} yrs
               </span>
-              <span className="job-card__type">{job.employmentType}</span>
+              <span className="job-card__type">
+                {job.employmentType}
+              </span>
             </div>
 
-            
             <div className="job-card__skills">
               {job.requiredSkills
                 ?.split(",")
@@ -128,10 +171,11 @@ const CandidateLanding = () => {
                 ))}
             </div>
 
-            
-            <button className="job-card__apply"
-              onClick={() => navigate(`/job/${job.jobId}`)}>
-              Apply Now 🚀
+            <button
+              className="job-card__apply"
+              onClick={() => navigate(`/job/${job.jobId}`)}
+            >
+              View & Apply 🚀
             </button>
           </div>
         ))}

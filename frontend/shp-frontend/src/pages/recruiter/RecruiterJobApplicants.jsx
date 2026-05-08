@@ -3,72 +3,276 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import "../../styles/recruiterApplicants.scss";
 
+import {
+  DndContext,
+  closestCorners,
+  useDraggable,
+  useDroppable
+} from "@dnd-kit/core";
+
+const statuses = ["APPLIED", "SHORTLISTED", "INTERVIEW"];
+
 const RecruiterJobApplicants = () => {
+
   const { jobId } = useParams();
   const navigate = useNavigate();
 
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [applications,setApplications] = useState([]);
+  const [jobTitle,setJobTitle] = useState("");
+  const [loading,setLoading] = useState(true);
+  const [activeCard,setActiveCard] = useState(null);
 
-  // Fetch Applicants for Job
-  async function fetchApplicants() {
-    try {
-      const res = await api.get(
-        `/application/getApplicationsForAJob/${jobId}`
-      );
-      setApplications(res.data);
-    } catch (err) {
-      console.error("Error fetching applicants:", err);
-    } finally {
-      setLoading(false);
+  const fetchJobTitle = async () => {
+    const res = await api.get(`/jobs/getJobById/${jobId}`);
+    setJobTitle(res.data.title);
+  };
+
+  const generateScore = async (applicationId)=>{
+    try{
+      await api.post(`/resumeScore/createNew/${applicationId}`);
+    }catch{}
+  };
+
+  const fetchScore = async (applicationId)=>{
+    try{
+      const res = await api.get(`/resumeScore/getScore/${applicationId}`);
+      return res.data;
+    }catch{
+      return null;
     }
-  }
+  };
 
-  useEffect(() => {
+  const fetchApplicants = async ()=>{
+
+    const res = await api.get(`/application/getApplicationsForAJob/${jobId}`);
+    const apps = res.data;
+    const savedStatuses = JSON.parse(
+  localStorage.getItem("applicationStatus") || "{}"
+);
+
+const updatedApps = apps.map(app => ({
+  ...app,
+  status: savedStatuses[app.applicationId] || app.status
+}));
+    const updated = await Promise.all(
+      apps.map(async(app)=>{
+
+        let score = await fetchScore(app.applicationId);
+
+        if(!score){
+          await generateScore(app.applicationId);
+          score = await fetchScore(app.applicationId);
+        }
+
+        return{
+          ...app,
+          aiScore:score?.aiScore ?? null,
+          keywordScore:score?.keywordScore ?? null,
+          finalScore:score?.finalScore ?? null
+        };
+
+      })
+    );
+
+    setApplications(updated);
+    setLoading(false);
+  };
+
+  useEffect(()=>{
+    fetchJobTitle();
     fetchApplicants();
-  }, []);
+  },[]);
 
-  if (loading) {
-    return <p className="loading">Loading Applicants...</p>;
+const updateStatus = async (applicationId, newStatus) => {
+  try {
+
+    await api.patch(
+      `/application/updateStatus/${applicationId}`,
+      { status: newStatus }
+    );
+
+  } catch (err) {
+    console.error("Status update error", err);
+    throw err; // important
   }
+};
 
-  return (
-    <div className="applicants">
-      <button className="back-btn" onClick={() => navigate("/recruiterLanding")}>
-        ← Back to Dashboard
+  const handleDragStart = (event)=>{
+
+    const id = event.active.id;
+
+    const card = applications.find(a=>a.applicationId===id);
+    setActiveCard(card);
+
+  };
+
+
+const handleDragEnd = (event) => {
+  const { active, over } = event;
+
+  if (!over) return;
+
+  const applicationId = active.id;
+  const newStatus = over.id;
+
+  // ✅ update UI
+  const updatedApps = applications.map(a =>
+    a.applicationId === applicationId
+      ? { ...a, status: newStatus }
+      : a
+  );
+
+  setApplications(updatedApps);
+
+  // ✅ save to localStorage
+  localStorage.setItem(
+    "applicationStatus",
+    JSON.stringify(
+      updatedApps.reduce((acc, app) => {
+        acc[app.applicationId] = app.status;
+        return acc;
+      }, {})
+    )
+  );
+};
+
+  if(loading) return <p className="loading">Loading Applicants...</p>;
+
+  return(
+
+    <div className="pipeline">
+
+      <button
+        className="back-btn"
+        onClick={()=>navigate("/recruiterLanding")}
+      >
+        ← Back
       </button>
 
-      <h1>Applicants for Job #{jobId}</h1>
+      <h1>
+        Applicants for <span>{jobTitle}</span>
+      </h1>
 
-      {applications.length === 0 ? (
-        <p>No applications yet.</p>
-      ) : (
-        <div className="applicants__grid">
-          {applications.map((app) => (
-            <div key={app.applicationId} className="app-card">
-              <h3>{app.name}</h3>
-              <p>{app.email}</p>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
 
-              <p>
-                Resume:{" "}
-                <a href={app.resumeUrl} target="_blank">
-                  View Link
-                </a>
-              </p>
+        <div className="board">
 
-              <div className="scores">
-                <p>AI Score: {app.aiScore ?? "Pending"}</p>
-                <p>Keyword Score: {app.keywordScore ?? "Pending"}</p>
-                <h2>Final ATS Score: {app.finalScore ?? "Pending"}</h2>
-              </div>
+          {statuses.map(status=>{
 
-              <p className="status">Status: {app.status}</p>
-            </div>
-          ))}
+            const apps = applications
+            .filter(a => String(a.status) === String(status))
+            .sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
+
+            return(
+              <Column
+                key={status}
+                status={status}
+                apps={apps}
+              />
+            );
+          })}
+
         </div>
-      )}
+
+       
+
+      </DndContext>
+
     </div>
+
   );
+
+};
+
+const Column = ({status,apps})=>{
+
+  const {setNodeRef} = useDroppable({
+    id:status
+  });
+
+  return(
+
+    <div ref={setNodeRef} className={`column ${status.toLowerCase()}`}>
+
+      <h2>
+        {status} ({apps.length})
+      </h2>
+
+      {apps.map(app=>(
+        <CandidateCard key={app.applicationId} app={app}/>
+      ))}
+
+    </div>
+
+  );
+
+};
+
+const CandidateCard = ({app})=>{
+
+  const {attributes,listeners,setNodeRef,transform} = useDraggable({
+    id:app.applicationId
+  });
+
+  const style = {
+    transform: transform
+      ? `translate3d(${transform.x}px,${transform.y}px,0)`
+      : undefined
+  };
+
+  return(
+
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={style}
+      className="candidate-card"
+    >
+
+      <h3>{app.name}</h3>
+
+      <p className="email">{app.email}</p>
+
+      <a
+        href={app.resumeUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="resume-link"
+      >
+        View Resume
+      </a>
+
+      <div className="scores">
+
+        <div className="score">
+    <span>AI Score: {app.aiScore ?? "..."}</span>
+    <div className="bar">
+      <div style={{width:`${app.aiScore || 0}%`}}/>
+    </div>
+  </div>
+
+       <div className="score">
+    <span>Keyword Score: {app.keywordScore ?? "..."}</span>
+    <div className="bar">
+      <div style={{width:`${app.keywordScore || 0}%`}}/>
+    </div>
+  </div>
+
+        <div className="final">
+          Final Score: {app.finalScore ?? "..."}
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+
 };
 
 export default RecruiterJobApplicants;
