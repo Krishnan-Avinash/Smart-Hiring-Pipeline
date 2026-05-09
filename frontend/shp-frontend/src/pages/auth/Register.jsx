@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import api from "../../api/axios";
 import { Link, useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
+import { motion } from "framer-motion";
 import "../../styles/auth/register.scss";
 
 const Register = () => {
@@ -10,142 +12,190 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [role, setRole] = useState("RECRUITER");
   const [designation, setDesignation] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      showSnackbar("Passwords do not match", "error");
       return;
     }
 
     try {
-      // 1️⃣ Create User
-      await api.post(
-        "/user/createUser",
-        {
-          userName,
-          email,
-          password,
-          confirmPassword,
-          role,
-        },
-        { withCredentials: true }
-      );
+      setLoading(true);
 
-      // 2️⃣ Login immediately (to set JWT cookie)
-      await api.post(
-        "/auth/login",
-        {
-          email,
-          password,
-        },
-        { withCredentials: true }
-      );
+      await api.post("/user/createUser", {
+        userName,
+        email,
+        password,
+        confirmPassword,
+        role,
+      });
 
-      // 3️⃣ If recruiter → create recruiter profile
+      await api.post("/auth/login", { email, password });
+
       if (role === "RECRUITER") {
-        await api.post(
-          "/recruiter/createNewRecruiter",
-          {
-            designation,
-            email,
-          },
-          { withCredentials: true }
-        );
+        await api.post("/recruiter/createNewRecruiter", {
+          designation,
+          email,
+        });
       }
 
-      alert("Registration successful!");
-      navigate("/"); // back to login or landing
-    } catch (err) {
-      console.error(err);
-      alert("Registration failed");
+      showSnackbar("Account created successfully!");
+
+      setTimeout(() => navigate("/"), 1200);
+    } catch {
+      showSnackbar("Registration failed ❌", "error");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="auth">
-      <form className="auth__card" onSubmit={handleSubmit}>
-        <h1 className="auth__title">Create account</h1>
-        <p className="auth__subtitle">
-          Join Smart Hiring Pipeline in seconds
-        </p>
+    <div className="register">
+      <div className="bg-glow"></div>
 
-        <div className="auth__field">
-          <label>Username</label>
+      {/* LEFT SIDE */}
+      <div className="register-left">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          <h1>
+            Build your <span>future</span> with SmartHire
+          </h1>
+
+          <p>
+            AI-powered hiring platform for recruiters and candidates.
+            Faster hiring. Smarter decisions.
+          </p>
+
+          <div className="left-stats">
+            <div>
+              <h3>10k+</h3>
+              <p>Users</p>
+            </div>
+            <div>
+              <h3>95%</h3>
+              <p>Accuracy</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* RIGHT SIDE */}
+      <motion.form
+        className="register-card"
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h2>Create account</h2>
+
+        {/* FLOATING INPUTS */}
+        <div className="input-group">
           <input
             type="text"
-            placeholder="Enter your username"
-            value={userName}
             required
+            value={userName}
             onChange={(e) => setUserName(e.target.value)}
           />
+          <label>Username</label>
         </div>
 
-        <div className="auth__field">
-          <label>Email</label>
+        <div className="input-group">
           <input
             type="email"
-            placeholder="Enter your email"
-            value={email}
             required
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          <label>Email</label>
         </div>
 
-        <div className="auth__field">
-          <label>Password</label>
+        <div className="input-group">
           <input
             type="password"
-            placeholder="Create a password"
-            value={password}
             required
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <label>Password</label>
         </div>
 
-        <div className="auth__field">
-          <label>Confirm password</label>
+        <div className="input-group">
           <input
             type="password"
-            placeholder="Re-enter your password"
-            value={confirmPassword}
             required
+            value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
+          <label>Confirm Password</label>
         </div>
 
-        <div className="auth__field">
-          <label>Role</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="RECRUITER">Recruiter</option>
-            <option value="CANDIDATE">Candidate</option>
-          </select>
+        {/* 🔥 CUSTOM ROLE SELECT */}
+        <div className="role-toggle">
+          <div
+            className={role === "RECRUITER" ? "active" : ""}
+            onClick={() => setRole("RECRUITER")}
+          >
+            Recruiter
+          </div>
+
+          <div
+            className={role === "CANDIDATE" ? "active" : ""}
+            onClick={() => setRole("CANDIDATE")}
+          >
+            Candidate
+          </div>
         </div>
 
         {role === "RECRUITER" && (
-          <div className="auth__field">
-            <label>Designation</label>
+          <div className="input-group">
             <input
               type="text"
-              placeholder="HR, Hiring Manager, Recruiter..."
-              value={designation}
               required
+              value={designation}
               onChange={(e) => setDesignation(e.target.value)}
             />
+            <label>Designation</label>
           </div>
         )}
 
-        <button type="submit" className="auth__button">
-          Create account
+        <button className="primary">
+          {loading ? "Creating..." : "Create Account"}
         </button>
 
-        <p className="auth__footer">
-          Already have an account? <Link to="/">Login</Link>
+        <p className="switch">
+          Already have an account? <Link to="/login">Login</Link>
         </p>
-      </form>
+      </motion.form>
+
+      {/* SNACKBAR */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} variant="filled">
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

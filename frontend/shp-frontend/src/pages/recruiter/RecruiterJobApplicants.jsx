@@ -20,7 +20,6 @@ const RecruiterJobApplicants = () => {
   const [applications,setApplications] = useState([]);
   const [jobTitle,setJobTitle] = useState("");
   const [loading,setLoading] = useState(true);
-  const [activeCard,setActiveCard] = useState(null);
 
   const fetchJobTitle = async () => {
     const res = await api.get(`/jobs/getJobById/${jobId}`);
@@ -43,17 +42,9 @@ const RecruiterJobApplicants = () => {
   };
 
   const fetchApplicants = async ()=>{
-
     const res = await api.get(`/application/getApplicationsForAJob/${jobId}`);
     const apps = res.data;
-    const savedStatuses = JSON.parse(
-  localStorage.getItem("applicationStatus") || "{}"
-);
 
-const updatedApps = apps.map(app => ({
-  ...app,
-  status: savedStatuses[app.applicationId] || app.status
-}));
     const updated = await Promise.all(
       apps.map(async(app)=>{
 
@@ -83,58 +74,50 @@ const updatedApps = apps.map(app => ({
     fetchApplicants();
   },[]);
 
-const updateStatus = async (applicationId, newStatus) => {
-  try {
-
-    await api.patch(
+  // 🔥 IMPORTANT: backend update
+  const updateStatus = async (applicationId, newStatus) => {
+    return api.patch(
       `/application/updateStatus/${applicationId}`,
       { status: newStatus }
     );
-
-  } catch (err) {
-    console.error("Status update error", err);
-    throw err; // important
-  }
-};
-
-  const handleDragStart = (event)=>{
-
-    const id = event.active.id;
-
-    const card = applications.find(a=>a.applicationId===id);
-    setActiveCard(card);
-
   };
 
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
 
-const handleDragEnd = (event) => {
-  const { active, over } = event;
+    if (!over) return;
 
-  if (!over) return;
+    const applicationId = active.id;
+    const newStatus = over.id;
 
-  const applicationId = active.id;
-  const newStatus = over.id;
+    const oldApp = applications.find(a => a.applicationId === applicationId);
+    const oldStatus = oldApp.status;
 
-  // ✅ update UI
-  const updatedApps = applications.map(a =>
-    a.applicationId === applicationId
-      ? { ...a, status: newStatus }
-      : a
-  );
+    if (oldStatus === newStatus) return;
 
-  setApplications(updatedApps);
+    // ✅ Optimistic UI update
+    const updatedApps = applications.map(a =>
+      a.applicationId === applicationId
+        ? { ...a, status: newStatus }
+        : a
+    );
 
-  // ✅ save to localStorage
-  localStorage.setItem(
-    "applicationStatus",
-    JSON.stringify(
-      updatedApps.reduce((acc, app) => {
-        acc[app.applicationId] = app.status;
-        return acc;
-      }, {})
-    )
-  );
-};
+    setApplications(updatedApps);
+
+    try {
+      await updateStatus(applicationId, newStatus);
+    } catch (err) {
+      console.error("Backend failed, reverting...", err);
+
+      // ❌ revert if backend fails
+      const reverted = applications.map(a =>
+        a.applicationId === applicationId
+          ? { ...a, status: oldStatus }
+          : a
+      );
+      setApplications(reverted);
+    }
+  };
 
   if(loading) return <p className="loading">Loading Applicants...</p>;
 
@@ -155,7 +138,6 @@ const handleDragEnd = (event) => {
 
       <DndContext
         collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
 
@@ -164,7 +146,7 @@ const handleDragEnd = (event) => {
           {statuses.map(status=>{
 
             const apps = applications
-            .filter(a => String(a.status) === String(status))
+            .filter(a => a.status === status)
             .sort((a,b)=>(b.finalScore||0)-(a.finalScore||0));
 
             return(
@@ -177,8 +159,6 @@ const handleDragEnd = (event) => {
           })}
 
         </div>
-
-       
 
       </DndContext>
 
@@ -250,18 +230,18 @@ const CandidateCard = ({app})=>{
       <div className="scores">
 
         <div className="score">
-    <span>AI Score: {app.aiScore ?? "..."}</span>
-    <div className="bar">
-      <div style={{width:`${app.aiScore || 0}%`}}/>
-    </div>
-  </div>
+          <span>AI Score: {app.aiScore ?? "..."}</span>
+          <div className="bar">
+            <div style={{width:`${app.aiScore || 0}%`}}/>
+          </div>
+        </div>
 
-       <div className="score">
-    <span>Keyword Score: {app.keywordScore ?? "..."}</span>
-    <div className="bar">
-      <div style={{width:`${app.keywordScore || 0}%`}}/>
-    </div>
-  </div>
+        <div className="score">
+          <span>Keyword Score: {app.keywordScore ?? "..."}</span>
+          <div className="bar">
+            <div style={{width:`${app.keywordScore || 0}%`}}/>
+          </div>
+        </div>
 
         <div className="final">
           Final Score: {app.finalScore ?? "..."}

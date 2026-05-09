@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RecruiterRoute from "./components/RecruiterRoute";
 import CandidateRoute from "./components/CandidateRoute";
 
+import LandingPage from "./pages/LandingPage";
 import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
 
@@ -23,7 +24,8 @@ function App() {
     <Routes>
 
       {/* ================= PUBLIC ROUTES ================= */}
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       {/* ================= PROTECTED ROUTES ================= */}
