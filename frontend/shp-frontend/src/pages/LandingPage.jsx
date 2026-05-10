@@ -103,7 +103,7 @@ const LandingPage = () => {
               Get Started <ArrowRight size={18} />
             </button>
 
-            <button onClick={() => navigate("/")}>
+            <button onClick={() => navigate("/login")}>
               Login
             </button>
           </div>

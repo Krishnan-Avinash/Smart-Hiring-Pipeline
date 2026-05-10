@@ -77,7 +77,7 @@ const CandidateProfile = () => {
             field === "education" ? tempValue : profile.education,
           experienceYears:
             field === "experienceYears"
-              ? tempValue
+              ? Number(tempValue)
               : profile.experienceYears,
           profileSummary:
             field === "profileSummary"
@@ -179,8 +179,13 @@ const CandidateProfile = () => {
                     />
                   ) : (
                     <div className="profile__valueBox">
-                      {profile[field] || "Not Provided"}
-                    </div>
+                      {field === "resumeUrl" && profile[field] ? (
+                        <a href={profile[field]} target="_blank" rel="noreferrer">
+                          View Resume 🔗
+                          </a>) : (
+                            profile[field] || "Not Provided"
+                            )}
+                            </div>
                   )}
                 </div>
 

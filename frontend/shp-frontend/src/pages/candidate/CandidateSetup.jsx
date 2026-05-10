@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import api from "../../api/axios";
 import "../../styles/candidateSetup.scss";
 
@@ -36,8 +37,7 @@ const CandidateSetup = () => {
 
       navigate("/candidateLanding");
     } catch (err) {
-      setError("Failed to create candidate profile.");
-      console.error(err);
+      setError("Failed to create profile");
     } finally {
       setLoading(false);
     }
@@ -45,44 +45,64 @@ const CandidateSetup = () => {
 
   return (
     <div className="candidate-setup">
-      <h1>Complete Your Candidate Profile</h1>
+      {/* background */}
+      <div className="bg-grid"></div>
+      <div className="glow glow-1"></div>
+      <div className="glow glow-2"></div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="resumeUrl"
-          placeholder="Resume Link"
-          onChange={handleChange}
-          required
-        />
+      <motion.div
+        className="setup-card"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1>Build your profile</h1>
+        <p>Let AI match you with the best opportunities</p>
 
-        <input
-          name="education"
-          placeholder="Education"
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <input
+              name="resumeUrl"
+              placeholder="Resume Link"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <input
-          name="experienceYears"
-          type="number"
-          placeholder="Experience (Years)"
-          onChange={handleChange}
-          required
-        />
+          <div className="field">
+            <input
+              name="education"
+              placeholder="Education (e.g. B.Tech CSE)"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <textarea
-          name="profileSummary"
-          placeholder="Profile Summary"
-          onChange={handleChange}
-          required
-        />
+          <div className="field">
+            <input
+              name="experienceYears"
+              type="number"
+              placeholder="Experience (Years)"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <button type="submit">
-          {loading ? "Saving..." : "Save & Continue"}
-        </button>
+          <div className="field">
+            <textarea
+              name="profileSummary"
+              placeholder="Tell us about yourself..."
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        {error && <p className="error">{error}</p>}
-      </form>
+          <button type="submit" className="primary">
+            {loading ? "Saving..." : "Save & Continue"}
+          </button>
+
+          {error && <p className="error">{error}</p>}
+        </form>
+      </motion.div>
     </div>
   );
 };

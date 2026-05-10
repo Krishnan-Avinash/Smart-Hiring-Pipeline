@@ -12,7 +12,6 @@ const CandidateLanding = () => {
 
   const navigate = useNavigate();
 
-  /* ---------------- FETCH DATA ---------------- */
 
   async function getJobs() {
     try {
@@ -50,7 +49,6 @@ const CandidateLanding = () => {
     loadData();
   }, []);
 
-  /* ---------------- FILTER LOGIC ---------------- */
 
   const filteredJobs = jobs.filter(
     (job) =>
@@ -63,7 +61,7 @@ const CandidateLanding = () => {
 
   return (
     <div className="candidate">
-      {/* ---------------- NAVBAR ---------------- */}
+      <div className="bg-grid"></div>
       <nav className="candidate__navbar">
         <div className="candidate__logo">
           Smart<span>Hire</span>
@@ -107,12 +105,10 @@ const CandidateLanding = () => {
         </div>
       </nav>
 
-      {/* ---------------- HERO ---------------- */}
       <div className="candidate__hero">
         <h1>Discover Your Next Opportunity</h1>
       </div>
 
-      {/* ---------------- SEARCH ---------------- */}
       <div className="candidate__search">
         <input
           type="text"
@@ -122,17 +118,14 @@ const CandidateLanding = () => {
         />
       </div>
 
-      {/* ---------------- LOADING ---------------- */}
       {loading && <p className="candidate__loading">Loading jobs...</p>}
 
-      {/* ---------------- EMPTY STATE ---------------- */}
       {!loading && filteredJobs.length === 0 && (
         <div className="candidate__empty">
           No jobs found.
         </div>
       )}
 
-      {/* ---------------- JOB GRID ---------------- */}
       <div className="candidate__grid">
         {filteredJobs.map((job) => (
           <div className="job-card fade-in" key={job.jobId}>
