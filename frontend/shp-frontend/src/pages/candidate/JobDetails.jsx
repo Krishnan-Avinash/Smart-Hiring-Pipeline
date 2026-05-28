@@ -12,17 +12,24 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [applyLoading, setApplyLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [applied, setApplied] = useState(false);
 
+  const [snackbar, setSnackbar] = useState("");
+
+  /* ---------------- SNACKBAR ---------------- */
+  function showSnackbar(msg) {
+    setSnackbar(msg);
+    setTimeout(() => setSnackbar(""), 3000);
+  }
+
+  /* ---------------- FETCH ---------------- */
   async function fetchJobDetails() {
     try {
       const res = await api.get(`/jobs/getJobById/${jobId}`);
       setJob(res.data);
     } catch (err) {
-      console.error("Error fetching job details:", err);
-      setError("Job not found or server error.");
+      console.error(err);
+      showSnackbar("Failed to load job");
     }
   }
 
@@ -34,55 +41,60 @@ const JobDetails = () => {
         setApplied(true);
       }
     } catch (err) {
-      console.error("Check Application Error:", err);
+      console.error(err);
     }
   }
 
   useEffect(() => {
     async function init() {
-      await fetchJobDetails();
-      await checkApplication();
+      setLoading(true);
+      await Promise.all([fetchJobDetails(), checkApplication()]);
       setLoading(false);
     }
 
     init();
   }, [jobId]);
 
-async function handleApply() {
-  setError("");
-  setMessage("");
+  /* ---------------- APPLY ---------------- */
+  async function handleApply() {
+    if (!resumeUrl.trim()) {
+      showSnackbar("Please enter resume link");
+      return;
+    }
 
-  if (!resumeUrl.trim()) {
-    setError("Please provide your resume Google Drive link.");
-    return;
+    if (!resumeUrl.includes("drive.google.com")) {
+      showSnackbar("Use a valid Google Drive link");
+      return;
+    }
+
+    try {
+      setApplyLoading(true);
+
+      await api.post(`/application/createApplication/${jobId}`, {
+        appliedResumeUrl: resumeUrl,
+      });
+
+      setApplied(true);
+      setResumeUrl("");
+
+      showSnackbar("Application submitted 🚀");
+    } catch (err) {
+      console.error(err);
+      showSnackbar(err.response?.data || "Failed to apply");
+    } finally {
+      setApplyLoading(false);
+    }
   }
 
-  try {
-    setApplyLoading(true);
-
-    await api.post(`/application/createApplication/${jobId}`, {
-      appliedResumeUrl: resumeUrl,
-    });
-
-    setMessage("Application submitted successfully!");
-    setApplied(true);
-    setResumeUrl("");
-  } catch (err) {
-    console.error("Apply Error:", err);
-    setError(err.response?.data || "Failed to apply. Please try again.");
-  } finally {
-    setApplyLoading(false);
-  }
-}
-
+  /* ---------------- STATES ---------------- */
   if (loading) {
     return <div className="jobdetails-loading">Loading Job Details...</div>;
   }
 
-  if (error && !job) {
+  if (!job) {
     return (
       <div className="jobdetails-loading">
-        <p>{error}</p>
+        <p>Job not found</p>
         <button
           onClick={() => navigate("/candidateLanding")}
           className="back-btn"
@@ -93,6 +105,7 @@ async function handleApply() {
     );
   }
 
+  /* ---------------- SKILLS ---------------- */
   const allSkills = (
     (job.requiredSkills || "") + "," + (job.prioritySkills || "")
   )
@@ -114,7 +127,8 @@ async function handleApply() {
       <div className="jobdetails__card">
         <h1>{job.title}</h1>
 
-        <p className="company">{job.company?.name}</p>
+        {/* FIXED company field */}
+        <p className="company">{job.companyName}</p>
 
         {applied && (
           <div className="applied-badge">
@@ -138,8 +152,7 @@ async function handleApply() {
           ))}
         </div>
 
-        {/* Resume Box */}
-
+        {/* RESUME BOX */}
         <div className={`resume-box ${applied ? "disabled" : ""}`}>
           <h3>Upload Resume Link</h3>
 
@@ -162,11 +175,11 @@ async function handleApply() {
               ? "Applied ✅"
               : "Apply Now 🚀"}
           </button>
-
-          {message && <p className="success-msg">{message}</p>}
-          {error && <p className="error-msg">{error}</p>}
         </div>
       </div>
+
+      {/* SNACKBAR */}
+      {snackbar && <div className="job-snackbar">{snackbar}</div>}
     </div>
   );
 };

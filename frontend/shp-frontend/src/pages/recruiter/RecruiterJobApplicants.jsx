@@ -74,7 +74,6 @@ const RecruiterJobApplicants = () => {
     fetchApplicants();
   },[]);
 
-  // 🔥 IMPORTANT: backend update
   const updateStatus = async (applicationId, newStatus) => {
     return api.patch(
       `/application/updateStatus/${applicationId}`,
@@ -95,7 +94,6 @@ const RecruiterJobApplicants = () => {
 
     if (oldStatus === newStatus) return;
 
-    // ✅ Optimistic UI update
     const updatedApps = applications.map(a =>
       a.applicationId === applicationId
         ? { ...a, status: newStatus }
@@ -109,7 +107,6 @@ const RecruiterJobApplicants = () => {
     } catch (err) {
       console.error("Backend failed, reverting...", err);
 
-      // ❌ revert if backend fails
       const reverted = applications.map(a =>
         a.applicationId === applicationId
           ? { ...a, status: oldStatus }
@@ -139,6 +136,9 @@ const RecruiterJobApplicants = () => {
       <DndContext
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
+        dropAnimation={{
+          duration: 1000,
+          easing: "ease"}}
       >
 
         <div className="board">
@@ -192,67 +192,97 @@ const Column = ({status,apps})=>{
 
 };
 
-const CandidateCard = ({app})=>{
+const CandidateCard = ({ app }) => {
+  const [open, setOpen] = useState(false);
 
-  const {attributes,listeners,setNodeRef,transform} = useDraggable({
-    id:app.applicationId
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: app.applicationId
   });
 
   const style = {
     transform: transform
-      ? `translate3d(${transform.x}px,${transform.y}px,0)`
-      : undefined
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+    zIndex: transform ? 999 : "auto" 
   };
 
-  return(
-
+  return (
     <div
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       style={style}
-      className="candidate-card"
+      className={`candidate-card ${open ? "open" : ""} ${transform ? "dragging" : ""}`}
     >
 
-      <h3>{app.name}</h3>
-
-      <p className="email">{app.email}</p>
-
-      <a
-        href={app.resumeUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="resume-link"
-      >
-        View Resume
-      </a>
-
-      <div className="scores">
-
-        <div className="score">
-          <span>AI Score: {app.aiScore ?? "..."}</span>
-          <div className="bar">
-            <div style={{width:`${app.aiScore || 0}%`}}/>
-          </div>
+      {/* HEADER */}
+      <div className="card-header">
+        
+        <div
+          className="name"
+          onClick={() => setOpen(!open)}
+        >
+          {app.name}
         </div>
 
-        <div className="score">
-          <span>Keyword Score: {app.keywordScore ?? "..."}</span>
-          <div className="bar">
-            <div style={{width:`${app.keywordScore || 0}%`}}/>
-          </div>
-        </div>
+        <div className="right-section">
 
-        <div className="final">
-          Final Score: {app.finalScore ?? "..."}
+          {/* SCORE ALWAYS VISIBLE */}
+          <span className="mini-score">
+            {app.finalScore ?? "..."}
+          </span>
+
+          <span
+            className="drag-handle"
+            {...listeners}
+            {...attributes}
+          >
+            ⠿
+          </span>
+
         </div>
 
       </div>
 
+      {/* BODY */}
+      {open && (
+        <div className="card-body">
+
+          <p className="email">{app.email}</p>
+
+          <a
+            href={app.resumeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="resume-link"
+          >
+            View Resume
+          </a>
+
+          <div className="scores">
+
+            <div className="score">
+              <span>AI Score: {app.aiScore ?? "..."}</span>
+              <div className="bar">
+                <div style={{ width: `${app.aiScore || 0}%` }} />
+              </div>
+            </div>
+
+            <div className="score">
+              <span>Keyword Score: {app.keywordScore ?? "..."}</span>
+              <div className="bar">
+                <div style={{ width: `${app.keywordScore || 0}%` }} />
+              </div>
+            </div>
+
+            <div className="final">
+              Final Score: {app.finalScore ?? "..."}
+            </div>
+
+          </div>
+
+        </div>
+      )}
     </div>
-
   );
-
 };
 
 export default RecruiterJobApplicants;

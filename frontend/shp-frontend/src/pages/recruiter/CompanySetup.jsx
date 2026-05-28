@@ -21,94 +21,89 @@ const CompanySetup = () => {
     e.preventDefault();
 
     try {
-      await api.post("/company/createCompany", companyData, { withCredentials: true });
-      alert("Company Created Successfully!");
+      await api.post("/company/createCompany", companyData, {
+        withCredentials: true,
+      });
 
-      
       navigate("/recruiterLanding", { replace: true });
+
     } catch (err) {
       console.error(err);
       alert("Company creation failed!");
     }
   }
 
-// useEffect(() => {
-//   let isMounted = true;
+  return (
+    <div className="companySetup">
 
-//   async function checkIfCompanyExists() {
-//     try {
-//       const res = await api.get("/recruiter/getSelf", {
-//         withCredentials: true,
-//       });
+      <div className="companySetup__wrapper">
 
-//       if (!isMounted) return;
+        {/* HEADER */}
+        <div className="companySetup__header">
+          <h1>Setup Company</h1>
+          <p>Create your company profile to start posting jobs</p>
+        </div>
 
-//       // If recruiter already has company → redirect once
-//       if (res.data.companyId) {
-//         navigate("/recruiterLanding", { replace: true });
-//       }
+        {/* CARD */}
+        <div className="companySetup__card">
+          <form onSubmit={handleSubmit}>
 
-//     } catch (err) {
-//       if (!isMounted) return;
-//       navigate("/", { replace: true });
-//     }
-//   }
+            <div className="inputGroup">
+              <label>Company Name</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter company name"
+                value={companyData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-//   checkIfCompanyExists();
+            <div className="inputGroup">
+              <label>Description</label>
+              <textarea
+                name="description"
+                placeholder="Describe your company..."
+                value={companyData.description}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-//   return () => {
-//     isMounted = false;
-//   };
-// }, [navigate]);
+            <div className="inputGroup">
+              <label>Industry</label>
+              <input
+                type="text"
+                name="industry"
+                placeholder="IT, Finance, Healthcare..."
+                value={companyData.industry}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-return (
-  <div className="companySetup">
-    <div className="companySetup__card">
-      <h1>Setup Your Company Profile</h1>
-      <p>You must create a company before posting jobs.</p>
+            <div className="inputGroup">
+              <label>Website</label>
+              <input
+                type="text"
+                name="websiteUrl"
+                placeholder="https://yourcompany.com"
+                value={companyData.websiteUrl}
+                onChange={handleChange}
+              />
+            </div>
 
-      <form onSubmit={handleSubmit}>
+            <button type="submit" className="submitBtn">
+              Create Company
+            </button>
 
+          </form>
+        </div>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Company Name"
-          value={companyData.name}
-          onChange={handleChange}
-          required
-        />
-
-        <textarea
-          name="description"
-          placeholder="Company Description"
-          value={companyData.description}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="industry"
-          placeholder="Industry (IT, Finance...)"
-          value={companyData.industry}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="websiteUrl"
-          placeholder="Website URL"
-          value={companyData.websiteUrl}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Save Company</button>
-      </form>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default CompanySetup;

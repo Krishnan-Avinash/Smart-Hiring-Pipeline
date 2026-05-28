@@ -102,6 +102,10 @@ const RecruiterLanding = () => {
             </p>
           )}
 
+          <button onClick={() => navigate("/recruiter/profile")}>
+            Profile
+            </button>
+
           <button
             className="recruiter__createBtn"
             onClick={() => setShowForm(!showForm)}
@@ -199,7 +203,7 @@ const RecruiterLanding = () => {
               onChange={handleChange}
             />
 
-            <button type="submit">Post Job 🚀</button>
+            <button type="submit">Post Job</button>
           </form>
         </div>
       )}

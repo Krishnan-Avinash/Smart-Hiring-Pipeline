@@ -168,7 +168,7 @@ const CandidateLanding = () => {
               className="job-card__apply"
               onClick={() => navigate(`/job/${job.jobId}`)}
             >
-              View & Apply 🚀
+              View & Apply 
             </button>
           </div>
         ))}

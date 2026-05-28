@@ -77,7 +77,7 @@ const Register = () => {
           animate={{ opacity: 1, x: 0 }}
         >
           <h1>
-            Build your <span>future</span> with SmartHire
+            Build your future with <span>SmartHire</span>
           </h1>
 
           <p>

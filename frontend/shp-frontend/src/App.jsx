@@ -16,6 +16,7 @@ import CandidateSetup from "./pages/candidate/CandidateSetup";
 
 import RecruiterLanding from "./pages/recruiter/RecruiterLanding";
 import RecruiterJobApplicants from "./pages/recruiter/RecruiterJobApplicants";
+import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
 import CompanySetup from "./pages/recruiter/CompanySetup";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 
@@ -23,26 +24,24 @@ function App() {
   return (
     <Routes>
 
-      {/* ================= PUBLIC ROUTES ================= */}
+      {/*  PUBLIC ROUTES  */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* ================= PROTECTED ROUTES ================= */}
+      {/*  PROTECTED ROUTES  */}
       <Route element={<ProtectedRoute />}>
 
         <Route path="/temp" element={<Temp />} />
 
-        {/* ================= CANDIDATE ROUTES ================= */}
+        {/*  CANDIDATE ROUTES  */}
         <Route path="/candidate/profile" element={<CandidateProfile />} />
 
-        {/* 🔥 Setup Page (NOT wrapped to avoid redirect loop) */}
         <Route
           path="/candidate-setup"
           element={<CandidateSetup />}
         />
 
-        {/* Wrapped pages (require candidate profile) */}
         <Route
           path="/candidateLanding"
           element={
@@ -70,7 +69,7 @@ function App() {
           }
         />
 
-        {/* ================= RECRUITER ROUTES ================= */}
+        {/*RECRUITER ROUTES*/}
 
         <Route
           path="/recruiterLanding"
@@ -79,6 +78,11 @@ function App() {
               <RecruiterLanding />
             </RecruiterRoute>
           }
+        />
+
+        <Route
+          path="/recruiter/profile"
+          element={<RecruiterProfile />}
         />
 
         <Route
