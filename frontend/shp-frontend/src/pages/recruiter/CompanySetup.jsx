@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/companySetup.scss";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const CompanySetup = () => {
   const [companyData, setCompanyData] = useState({
@@ -12,6 +13,7 @@ const CompanySetup = () => {
   });
 
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   function handleChange(e) {
     setCompanyData({ ...companyData, [e.target.name]: e.target.value });
@@ -25,12 +27,19 @@ const CompanySetup = () => {
         withCredentials: true,
       });
 
-      navigate("/recruiterLanding", { replace: true });
+      showSnackbar("Company created successfully");
+
+setTimeout(() => {
+  navigate("/recruiterLanding", { replace: true });
+}, 1000);
 
     } catch (err) {
-      console.error(err);
-      alert("Company creation failed!");
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to create company");
+  }
+}
   }
 
   return (

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import "../../styles/recruiterLanding.scss";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const RecruiterLanding = () => {
+  
   const [jobs, setJobs] = useState([]);
   const [user, setUser] = useState(null);
 
@@ -22,6 +24,7 @@ const RecruiterLanding = () => {
   });
 
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   async function getRecruiterProfile() {
     try {
@@ -29,8 +32,12 @@ const RecruiterLanding = () => {
       setUser(res.data);
       getRecruiterJobs();
     } catch (err) {
-      console.error("Error fetching recruiter profile:", err);
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to load profile");
+  }
+}
   }
 
   async function getRecruiterJobs() {
@@ -38,8 +45,12 @@ const RecruiterLanding = () => {
       const res = await api.get("/jobs/getJobsOfARecruiter");
       setJobs(res.data);
     } catch (err) {
-      console.error("Error fetching recruiter jobs:", err);
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to load jobs");
+  }
+}
   }
 
   function handleChange(e) {
@@ -52,7 +63,7 @@ const RecruiterLanding = () => {
     try {
       await api.post("/jobs/createNewJob", jobData);
 
-      alert("Job Created Successfully!");
+      showSnackbar("Job created successfully");
       getRecruiterJobs();
 
       setJobData({
@@ -69,18 +80,51 @@ const RecruiterLanding = () => {
 
       setShowForm(false);
     } catch (err) {
-      console.error("Error creating job:", err);
-      alert(err.response?.data || "Failed to create job");
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar(
+      err.response?.data || "Failed to create job"
+    );
   }
+}
+  }
+
+  async function handleJobStatus(job, newStatus) {
+  try {
+    await api.put(`/jobs/updateJobById/${job.jobId}`, {
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      employmentType: job.employmentType,
+      experienceMin: job.experienceMin,
+      experienceMax: job.experienceMax,
+      requiredSkills: job.requiredSkills,
+      prioritySkills: job.prioritySkills,
+      status: newStatus,
+    });
+
+    getRecruiterJobs();
+  } catch (err) {
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to update job status");
+  }
+}
+}
 
   async function handleLogout() {
     try {
       await api.post("/auth/logout");
       navigate("/");
     } catch (err) {
-      console.error("Logout failed:", err);
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Logout failed");
+  }
+}
   }
 
   useEffect(() => {
@@ -216,9 +260,26 @@ const RecruiterLanding = () => {
             <div className="job-card__top">
               <h3>{job.title}</h3>
 
-              <span className={`status ${job.status.toLowerCase()}`}>
-                {job.status}
-              </span>
+              <span
+  className={`status ${job.status.toLowerCase()} clickable-status`}
+  onClick={(e) => {
+    e.stopPropagation();
+
+    handleJobStatus(
+      job,
+      job.status === "OPEN"
+        ? "CLOSED"
+        : "OPEN"
+    );
+  }}
+  title={
+    job.status === "OPEN"
+      ? "Click to close job"
+      : "Click to reopen job"
+  }
+>
+  {job.status}
+</span>
             </div>
 
             <p className="company">{job.companyName}</p>
@@ -233,15 +294,19 @@ const RecruiterLanding = () => {
               <span className="employment">{job.employmentType}</span>
             </div>
 
-            <button
-              className="applicants-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/recruiter/job/${job.jobId}`);
-              }}
-            >
-              View Applicants →
-            </button>
+<div className="job-card__actions">
+
+  <button
+    className="applicants-btn"
+    onClick={(e) => {
+      e.stopPropagation();
+      navigate(`/recruiter/job/${job.jobId}`);
+    }}
+  >
+    View Applicants →
+  </button>
+
+</div>
 
           </div>
         ))}

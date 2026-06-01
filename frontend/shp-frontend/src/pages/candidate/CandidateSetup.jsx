@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../../api/axios";
 import "../../styles/candidateSetup.scss";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const CandidateSetup = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [form, setForm] = useState({
     resumeUrl: "",
@@ -14,7 +16,6 @@ const CandidateSetup = () => {
     profileSummary: "",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
@@ -23,7 +24,6 @@ const CandidateSetup = () => {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
 
     try {
       setLoading(true);
@@ -34,10 +34,18 @@ const CandidateSetup = () => {
         experienceYears: Number(form.experienceYears),
         profileSummary: form.profileSummary,
       });
+      showSnackbar("Profile created successfully");
+      setTimeout(() => {
+        navigate("/candidateLanding");
+      }, 1000);
 
       navigate("/candidateLanding");
     } catch (err) {
-      setError("Failed to create profile");
+      console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to create profile");
+  }
     } finally {
       setLoading(false);
     }
@@ -100,7 +108,6 @@ const CandidateSetup = () => {
             {loading ? "Saving..." : "Save & Continue"}
           </button>
 
-          {error && <p className="error">{error}</p>}
         </form>
       </motion.div>
     </div>

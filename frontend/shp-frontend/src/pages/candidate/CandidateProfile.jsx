@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 import "../../styles/candidateProfile.scss";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const CandidateProfile = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,6 @@ const CandidateProfile = () => {
   const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState("");
 
-  const [snackbar, setSnackbar] = useState("");
 
   const [passwordData, setPasswordData] = useState({
     password: "",
@@ -54,6 +55,9 @@ const CandidateProfile = () => {
 
     } catch (err) {
       console.error(err);
+      if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to load profile");
+  }
     } finally {
       setLoading(false);
     }
@@ -94,6 +98,9 @@ const CandidateProfile = () => {
 
     } catch (err) {
       console.error(err);
+      if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to update profile");
+  }
     }
   }
 
@@ -115,23 +122,15 @@ const CandidateProfile = () => {
 
     } catch (err) {
       console.error(err);
+      if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to update password");
+  }
     }
   }
 
-  function showSnackbar(message) {
-    setSnackbar(message);
-    setTimeout(() => setSnackbar(""), 3000);
-  }
 
-  async function handleBack() {
-  try {
-    await api.get("/auth/get"); // check session
-
-    navigate("/candidateLanding");
-
-  } catch (err) {
-    navigate("/login");
-  }
+  function handleBack() {
+  navigate("/candidateLanding");
 }
 
 
@@ -253,10 +252,6 @@ const CandidateProfile = () => {
 
       </div>
 
-      {/* SNACKBAR */}
-      {snackbar && (
-        <div className="snackbar">{snackbar}</div>
-      )}
 
     </div>
   );

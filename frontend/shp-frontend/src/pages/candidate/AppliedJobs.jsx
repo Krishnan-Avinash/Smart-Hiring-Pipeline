@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const AppliedJobs = () => {
 
@@ -9,6 +10,12 @@ const AppliedJobs = () => {
   const [selectedApp, setSelectedApp] = useState(null);
 
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
+
+
+  const handleBack = () => {
+  navigate("/candidateLanding");
+};
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -18,7 +25,8 @@ const AppliedJobs = () => {
         });
         setApplications(res.data || []);
       } catch (error) {
-        console.error("Error fetching applications:", error);
+        console.error(error);
+        showSnackbar("Failed to load applications");
       } finally {
         setLoading(false);
       }
@@ -37,14 +45,14 @@ const AppliedJobs = () => {
   return (
     <div className="applied-page">
 
-      {/* BLUR BACKGROUND */}
       <div className={`applied ${selectedApp ? "blur" : ""}`}>
 
         <div className="applied__wrapper">
 
           <div className="applied__top">
             <h1>My Applications</h1>
-            <button onClick={() => navigate("/candidateLanding")}>
+
+            <button onClick={handleBack}>
               ← Back to Jobs
             </button>
           </div>
@@ -54,7 +62,8 @@ const AppliedJobs = () => {
             <div className="empty">
               <h3>No Applications Yet</h3>
               <p>You haven't applied to any jobs yet.</p>
-              <button onClick={() => navigate("/candidateLanding")}>
+
+              <button onClick={handleBack}>
                 Browse Jobs
               </button>
             </div>
@@ -70,12 +79,14 @@ const AppliedJobs = () => {
                     <h3>{app.jobTitle}</h3>
                     <div className="company">{app.companyName}</div>
                     <div className="industry">{app.industry}</div>
+
                     <div className="meta">
                       Applied on:{" "}
                       {app.appliedAt
                         ? new Date(app.appliedAt).toLocaleDateString()
                         : "N/A"}
                     </div>
+
                     {app.websiteUrl && (
                       <a
                         href={app.websiteUrl}
@@ -91,6 +102,7 @@ const AppliedJobs = () => {
                     <div className={`status ${app.status?.toLowerCase()}`}>
                       {app.status}
                     </div>
+
                     <button
                       className="details-btn"
                       onClick={() => setSelectedApp(app)}
@@ -137,6 +149,7 @@ const AppliedJobs = () => {
               <p><b>Name:</b> {selectedApp.companyName}</p>
               <p><b>Industry:</b> {selectedApp.industry}</p>
               <p><b>Description:</b> {selectedApp.companyDescription}</p>
+
               {selectedApp.websiteUrl && (
                 <a
                   href={selectedApp.websiteUrl}
@@ -151,9 +164,11 @@ const AppliedJobs = () => {
             {/* TIMELINE */}
             <div className="modal-section">
               <h3>Application Timeline</h3>
+
               <div className="stepper">
                 {steps.map((step, index) => {
                   const currentIndex = getStepIndex(selectedApp.status);
+
                   return (
                     <div
                       key={step}
@@ -167,7 +182,10 @@ const AppliedJobs = () => {
               </div>
             </div>
 
-            <button className="close-btn" onClick={() => setSelectedApp(null)}>
+            <button
+              className="close-btn"
+              onClick={() => setSelectedApp(null)}
+            >
               Close
             </button>
 
@@ -176,6 +194,7 @@ const AppliedJobs = () => {
         </div>
 
       )}
+
 
     </div>
   );

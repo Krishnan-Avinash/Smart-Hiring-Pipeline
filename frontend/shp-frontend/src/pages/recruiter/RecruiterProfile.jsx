@@ -110,17 +110,8 @@ const RecruiterProfile = () => {
     }
   }
 
-  async function handleBack() {
-  try {
-    await api.get("/auth/get");
-
-
-    navigate("/recruiterLanding");
-
-  } catch (err) {
-
-    navigate("/login");
-  }
+  function handleBack() {
+  navigate("/recruiterLanding");
 }
 
   function handleJobClick(jobId) {

@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Snackbar, Alert } from "@mui/material";
 
 import Temp from "./Temp";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -21,82 +23,116 @@ import CompanySetup from "./pages/recruiter/CompanySetup";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 
 function App() {
+  const [sessionSnackbar, setSessionSnackbar] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const msg = localStorage.getItem("globalError");
+
+    if (msg) {
+      setMessage(msg);
+      setSessionSnackbar(true);
+
+      localStorage.removeItem("globalError");
+    }
+  }, []);
+
   return (
-    <Routes>
+    <>
+      <Routes>
 
-      {/*  PUBLIC ROUTES  */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        {/* PUBLIC ROUTES */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/*  PROTECTED ROUTES  */}
-      <Route element={<ProtectedRoute />}>
+        {/* PROTECTED ROUTES */}
+        <Route element={<ProtectedRoute />}>
 
-        <Route path="/temp" element={<Temp />} />
+          <Route path="/temp" element={<Temp />} />
 
-        {/*  CANDIDATE ROUTES  */}
-        <Route path="/candidate/profile" element={<CandidateProfile />} />
+          {/* CANDIDATE ROUTES */}
+          <Route path="/candidate/profile" element={<CandidateProfile />} />
 
-        <Route
-          path="/candidate-setup"
-          element={<CandidateSetup />}
-        />
+          <Route
+            path="/candidate-setup"
+            element={<CandidateSetup />}
+          />
 
-        <Route
-          path="/candidateLanding"
-          element={
-            <CandidateRoute>
-              <CandidateLanding />
-            </CandidateRoute>
-          }
-        />
+          <Route
+            path="/candidateLanding"
+            element={
+              <CandidateRoute>
+                <CandidateLanding />
+              </CandidateRoute>
+            }
+          />
 
-        <Route
-          path="/candidate/my-applications"
-          element={
-            <CandidateRoute>
-              <AppliedJobs />
-            </CandidateRoute>
-          }
-        />
+          <Route
+            path="/candidate/my-applications"
+            element={
+              <CandidateRoute>
+                <AppliedJobs />
+              </CandidateRoute>
+            }
+          />
 
-        <Route
-          path="/job/:jobId"
-          element={
-            <CandidateRoute>
-              <JobDetails />
-            </CandidateRoute>
-          }
-        />
+          <Route
+            path="/job/:jobId"
+            element={
+              <CandidateRoute>
+                <JobDetails />
+              </CandidateRoute>
+            }
+          />
 
-        {/*RECRUITER ROUTES*/}
+          {/* RECRUITER ROUTES */}
+          <Route
+            path="/recruiterLanding"
+            element={
+              <RecruiterRoute>
+                <RecruiterLanding />
+              </RecruiterRoute>
+            }
+          />
 
-        <Route
-          path="/recruiterLanding"
-          element={
-            <RecruiterRoute>
-              <RecruiterLanding />
-            </RecruiterRoute>
-          }
-        />
+          <Route
+            path="/recruiter/profile"
+            element={<RecruiterProfile />}
+          />
 
-        <Route
-          path="/recruiter/profile"
-          element={<RecruiterProfile />}
-        />
+          <Route
+            path="/recruiter/job/:jobId"
+            element={<RecruiterJobApplicants />}
+          />
 
-        <Route
-          path="/recruiter/job/:jobId"
-          element={<RecruiterJobApplicants />}
-        />
+          <Route
+            path="/company-setup"
+            element={<CompanySetup />}
+          />
 
-        <Route
-  path="/company-setup"
-  element={<CompanySetup />}
-/>
+        </Route>
 
-      </Route>
-    </Routes>
+      </Routes>
+
+      <Snackbar
+        open={sessionSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setSessionSnackbar(false)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <Alert
+          severity="warning"
+          variant="filled"
+          onClose={() => setSessionSnackbar(false)}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }
 

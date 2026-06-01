@@ -20,11 +20,7 @@ const RecruiterRoute = ({ children }) => {
 
       } catch (err) {
 
-        if (err.response && err.response.status === 403) {
-          setHasRecruiterProfile(false);
-        } else {
-          setHasRecruiterProfile(false);
-        }
+        setHasRecruiterProfile(false);
 
       } finally {
         setLoading(false);
@@ -36,7 +32,7 @@ const RecruiterRoute = ({ children }) => {
 
   if (loading) return <div>Checking recruiter profile...</div>;
 
-  if (!hasRecruiterProfile) return <Navigate to="/company-setup" />;
+  if (!hasRecruiterProfile) return <Navigate to="/company-setup" replace />;
 
   return children;
 };

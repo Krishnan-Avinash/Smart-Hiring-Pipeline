@@ -16,9 +16,10 @@ const CandidateLanding = () => {
   async function getJobs() {
     try {
       const res = await api.get("/jobs/getAllJobs");
-      setJobs(res.data);
+      setJobs((res.data || []).filter((job) => job.status?.toUpperCase() === "OPEN")
+);
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error("Failed to fetch jobs:", error);
     }
   }
 

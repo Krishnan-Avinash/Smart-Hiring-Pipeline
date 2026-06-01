@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import "../../styles/jobDetails.scss";
+import { useSnackbar } from "../../context/SnackbarContext";
 
 const JobDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const [job, setJob] = useState(null);
   const [resumeUrl, setResumeUrl] = useState("");
@@ -14,23 +16,24 @@ const JobDetails = () => {
   const [applyLoading, setApplyLoading] = useState(false);
   const [applied, setApplied] = useState(false);
 
-  const [snackbar, setSnackbar] = useState("");
 
-  /* ---------------- SNACKBAR ---------------- */
-  function showSnackbar(msg) {
-    setSnackbar(msg);
-    setTimeout(() => setSnackbar(""), 3000);
-  }
+  
 
-  /* ---------------- FETCH ---------------- */
+  const handleBack = () => {
+  navigate("/candidateLanding");
+};
+
   async function fetchJobDetails() {
     try {
       const res = await api.get(`/jobs/getJobById/${jobId}`);
       setJob(res.data);
     } catch (err) {
-      console.error(err);
-      showSnackbar("Failed to load job");
-    }
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar("Failed to load job");
+  }
+}
   }
 
   async function checkApplication() {
@@ -55,7 +58,6 @@ const JobDetails = () => {
     init();
   }, [jobId]);
 
-  /* ---------------- APPLY ---------------- */
   async function handleApply() {
     if (!resumeUrl.trim()) {
       showSnackbar("Please enter resume link");
@@ -79,14 +81,18 @@ const JobDetails = () => {
 
       showSnackbar("Application submitted 🚀");
     } catch (err) {
-      console.error(err);
-      showSnackbar(err.response?.data || "Failed to apply");
-    } finally {
+  console.error(err);
+
+  if (![401, 403].includes(err.response?.status)) {
+    showSnackbar(
+      err.response?.data || "Failed to apply"
+    );
+  }
+} finally {
       setApplyLoading(false);
     }
   }
 
-  /* ---------------- STATES ---------------- */
   if (loading) {
     return <div className="jobdetails-loading">Loading Job Details...</div>;
   }
@@ -96,7 +102,7 @@ const JobDetails = () => {
       <div className="jobdetails-loading">
         <p>Job not found</p>
         <button
-          onClick={() => navigate("/candidateLanding")}
+          onClick={handleBack}
           className="back-btn"
         >
           Back to Jobs
@@ -105,7 +111,6 @@ const JobDetails = () => {
     );
   }
 
-  /* ---------------- SKILLS ---------------- */
   const allSkills = (
     (job.requiredSkills || "") + "," + (job.prioritySkills || "")
   )
@@ -115,19 +120,21 @@ const JobDetails = () => {
 
   return (
     <div className="jobdetails">
+
+      {/* TOP BAR */}
       <div className="jobdetails__topbar">
         <button
           className="back-btn"
-          onClick={() => navigate("/candidateLanding")}
+          onClick={handleBack}
         >
           ← Back to Jobs
         </button>
       </div>
 
+      {/* CARD */}
       <div className="jobdetails__card">
         <h1>{job.title}</h1>
 
-        {/* FIXED company field */}
         <p className="company">{job.companyName}</p>
 
         {applied && (
@@ -178,8 +185,6 @@ const JobDetails = () => {
         </div>
       </div>
 
-      {/* SNACKBAR */}
-      {snackbar && <div className="job-snackbar">{snackbar}</div>}
     </div>
   );
 };
